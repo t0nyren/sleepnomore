@@ -1,40 +1,28 @@
-# 眠安 (SleepNoMore) — Web Prototype
+# SleepNoMore (眠安)
 
-Next.js 15 + React 19 + Tailwind v4. Phase 0 prototype of visual baseline + 4 core screens.
+An AI sleep-story app: generate a calming bedtime story from a prompt or guided theme, listen as audio.
 
-## Run
+Production: <https://sleepnomore.secondlife.today>
 
-```bash
-npm install
-npm run dev
-# open http://localhost:3000
+## Monorepo layout
+
+```
+apps/
+  web/      Next.js 16 app (Tailwind v4, App Router). Production build deploys to /srv/mianan/ via rsync.
+  mobile/   Capacitor iOS shell wrapping the production PWA. Bundle id com.sleepnomore.app.
 ```
 
-## Routes (prototype, no backend yet)
+See each `apps/<name>/README.md` for setup, build, and deploy notes.
 
-| Path | Screen |
-|---|---|
-| `/` | Tonight — landing, one CTA + recent stories + suggestions |
-| `/create` | Create-Guided — theme / style / duration / voice pills |
-| `/create/free` | Create-Free — 500-char prompt + style hints |
-| `/voices` | Voice Picker — 4 Minimax presets + cloning placeholder |
+## Quick orientation
 
-Persistent mini-player at the bottom of every page.
+- **Source of truth**: this repo. Pull before editing; push before deploy.
+- **Production deploy** (web): `rsync apps/web/ root@<server>:/srv/mianan/`, then `npm run build && systemctl restart mianan` on the server. `/srv/mianan/` keeps its flat layout — only the repo is restructured.
+- **iOS app**: `apps/mobile/`. Open `ios/App/App.xcodeproj` in Xcode. Loads the production URL inside a WebView; the native shell adds `UIBackgroundModes: audio` and safe-area inset injection so the PWA works as a real app with lock-screen playback.
+- **Secrets**: never committed. Web server reads `/etc/mianan/env`. iOS shell has no secrets.
 
-## Design tokens
+## Owners
 
-All tokens live in `app/globals.css` inside `@theme { ... }`. To tweak the visual baseline, edit there.
-
-Key tokens:
-- `--color-bg-base` = `#0B1020` (midnight navy, never pure black)
-- `--color-accent-violet/indigo/cyan` — used only in the aurora gradient on the primary CTA + mini-player play button
-- `--font-serif` = Noto Serif SC + Cormorant Garamond → display / story titles
-- `--font-sans` = Inter + Noto Sans SC → body
-- `--ease-quiet` = `cubic-bezier(0.2, 0.8, 0.2, 1)` → all motion
-
-## What this is NOT yet
-
-- No backend / no real generation / no real TTS — all data is hardcoded in components
-- No auth, no library persistence, no reader, no real player
-- No PWA manifest yet
-- Mock data lives inline (will move to `packages/shared` when we extract the monorepo in P1)
+- Web (`apps/web/`) — Tio + Altina
+- Mobile (`apps/mobile/`) — Tio
+- LLM/TTS reliability (`apps/web/lib/adapters/`, `apps/web/lib/prompts/`) — Altina

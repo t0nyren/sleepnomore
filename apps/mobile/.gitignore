@@ -1,0 +1,17 @@
+node_modules/
+www/build/
+ios/App/build/
+ios/App/Pods/
+ios/App/output/
+ios/.gradle/
+ios/DerivedData/
+DerivedData/
+*.xcuserdata/
+*.xcuserstate
+xcuserdata/
+
+# Capacitor regenerates these on `cap sync`
+ios/capacitor-cordova-ios-plugins/
+
+.DS_Store
+*.log
