@@ -405,7 +405,7 @@ export async function generateStory(
     const raw = parser.rawText();
     if (!raw) return { story: null, meta, raw };
     try {
-      const parsed = JSON.parse(stripCodeFences(raw));
+      const parsed = JSON.parse(extractJsonObject(raw));
       return { story: StorySchema.parse(parsed), meta, raw };
     } catch {
       return { story: null, meta, raw };
@@ -442,8 +442,20 @@ export async function generateStory(
           }
           throw new Error("LLM_EMPTY");
         }
-        // raw present but not parseable
-        console.error(`[llm] JSON parse / schema check failed provider=${provider.name} model=${provider.model}; first 500 chars: ${result.raw.slice(0, 500)}`);
+        // Raw present but not parseable. If no chapter has reached the UI yet,
+        // this is safe to retry from scratch; mini models sometimes emit a
+        // short preamble or get truncated before the JSON object is complete.
+        console.error(
+          `[llm] JSON parse / schema check failed provider=${provider.name} model=${provider.model} attempt ${attempt}/${maxAttempts}; chapters=${chaptersEmittedThisRun}; first 500 chars: ${result.raw.slice(0, 500)}`,
+        );
+        if (chaptersEmittedThisRun === 0 && attempt < maxAttempts) {
+          await new Promise((r) => setTimeout(r, BACKOFFS_MS[attempt - 1] ?? 3000));
+          continue;
+        }
+        if (chaptersEmittedThisRun === 0 && provider.name === "primary" && fallback) {
+          console.error(`[llm] primary bad JSON exhausted; switching to fallback model=${fallback.model}`);
+          break;
+        }
         throw new Error("LLM_BAD_JSON");
       } catch (err: any) {
         const code = err?.message ?? String(err);
@@ -468,8 +480,41 @@ export async function generateStory(
   throw new Error("LLM_EMPTY");
 }
 
-function stripCodeFences(s: string): string {
-  return s.replace(/^\s*```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+function extractJsonObject(s: string): string {
+  const text = s.replace(/^\s*```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+  const start = text.indexOf("{");
+  if (start === -1) return text;
+
+  let inString = false;
+  let escape = false;
+  let depth = 0;
+  for (let i = start; i < text.length; i++) {
+    const c = text[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (inString) {
+      if (c === "\\") {
+        escape = true;
+      } else if (c === '"') {
+        inString = false;
+      }
+      continue;
+    }
+    if (c === '"') {
+      inString = true;
+      continue;
+    }
+    if (c === "{") depth++;
+    if (c === "}") {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+
+  // Return from the first object opener so JSON.parse reports a useful failure.
+  return text.slice(start);
 }
 
 function mockStory(params: StoryParams): Story {
