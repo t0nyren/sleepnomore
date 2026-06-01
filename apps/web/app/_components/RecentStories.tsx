@@ -49,7 +49,7 @@ export function RecentStories() {
               <div className="flex flex-col gap-2">
                 <span className="display text-h3 leading-snug">{s.title ?? "未命名故事"}</span>
                 <span className="text-caption muted">
-                  {s.status === "ready" ? "已就绪" : s.status === "failed" ? "失败" : "生成中…"} · {fmtDate(s.createdAt)}
+                  {s.status === "ready" ? "已就绪" : s.status === "failed" ? "失败" : "准备中…"} · {fmtDate(s.createdAt)}
                 </span>
               </div>
             </Link>

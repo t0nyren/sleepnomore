@@ -30,12 +30,12 @@ export default async function TonightPage() {
           写一篇睡前故事。
         </h1>
         <p className="max-w-[40ch] muted text-[1.0625rem]">
-          告诉我你想听什么，AI 写出来并念给你听。10–25 分钟，伴你入睡。
+          选好主题、风格和时长，听一段温柔的睡前故事。10–25 分钟，伴你入睡。
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           {user ? (
             <>
-              <Link href="/create" className="cta-primary">为今夜生成一篇</Link>
+              <Link href="/create" className="cta-primary">为今夜准备一篇</Link>
               <Link href="/create/free" className="cta-ghost">自由描述</Link>
             </>
           ) : (

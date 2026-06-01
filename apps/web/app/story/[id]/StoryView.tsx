@@ -73,9 +73,9 @@ export function StoryView({ storyId }: { storyId: string }) {
   if (story.status === "failed") {
     return (
       <div className="float-card flex flex-col gap-3">
-        <h2 className="display text-h2" style={{ color: "var(--color-error)" }}>生成失败</h2>
+        <h2 className="display text-h2" style={{ color: "var(--color-error)" }}>没能准备好</h2>
         <p className="muted">{story.progress?.detail ?? "稍后再试一次。"}</p>
-        <Link href="/create" className="cta-ghost self-start">回去重新生成</Link>
+        <Link href="/create" className="cta-ghost self-start">回去重试</Link>
       </div>
     );
   }
@@ -91,13 +91,13 @@ export function StoryView({ storyId }: { storyId: string }) {
         {showTitle ? (
           <header className="flex flex-col gap-3">
             <span className="chip-bright" style={{ background: "linear-gradient(135deg,#FF9555,#FFD24D)" }}>
-              正在写故事…
+              正在准备…
             </span>
             <h1 className="display text-h1 max-w-[26ch]">{story.title}</h1>
             {story.summary ? <p className="muted">{story.summary}</p> : null}
           </header>
         ) : null}
-        <LoadingState detail={story.progress.detail ?? "正在创作故事…"} stage="text" />
+        <LoadingState detail={story.progress.detail ?? "正在为你准备故事…"} stage="text" />
       </div>
     );
   }
@@ -119,7 +119,7 @@ export function StoryView({ storyId }: { storyId: string }) {
       ? "all_failed"
       : "synthesizing";
   const topLabel = isStreaming
-    ? `正在写故事 · 已生成 ${totalChapters} 章`
+    ? `正在准备 · 已就位 ${totalChapters} 章`
     : audioState === "all_ready"
     ? "READY · 准备好了"
     : audioState === "all_failed"
@@ -150,7 +150,7 @@ export function StoryView({ storyId }: { storyId: string }) {
         {isStreaming ? (
           <div className="float-card flex items-start gap-3 mt-2" style={{ borderColor: "rgba(255, 149, 85, 0.4)" }}>
             <span className="inline-block h-2 w-2 mt-1.5 rounded-full" style={{ background: "#FF9555", boxShadow: "0 0 10px #FF9555cc", animation: "drift 1.6s ease-in-out infinite" }} />
-            <span className="text-caption">{story.progress?.detail ?? "AI 正在继续写后面的章节…你可以先读现在的内容。"}</span>
+            <span className="text-caption">{story.progress?.detail ?? "后面的章节还在准备…你可以先读现在的内容。"}</span>
           </div>
         ) : audioState === "all_failed" ? (
           <div className="float-card flex items-start gap-3 mt-2" style={{ borderColor: "rgba(255, 149, 85, 0.4)" }}>
@@ -251,9 +251,9 @@ function LoadingState({ detail, stage }: { detail: string; stage?: "text" | "aud
           <path d="M21 12a9 9 0 1 1-9-9" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" />
         </svg>
       </div>
-      <h2 className="display text-h3">{stage === "audio" ? "正在合成音频" : "正在创作故事"}</h2>
+      <h2 className="display text-h3">{stage === "audio" ? "正在合成音频" : "正在准备故事"}</h2>
       <p className="muted text-center max-w-[36ch]">{detail}</p>
-      <p className="text-caption muted">这一步通常 1-3 分钟，偶尔需要更长。你可以等也可以稍后回来——故事保存在这个链接里。</p>
+      <p className="text-caption muted">这一步通常 1-3 分钟，偶尔需要更长。你可以等也可以稍后回来——故事保存在这里。</p>
     </div>
   );
 }

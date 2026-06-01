@@ -64,7 +64,7 @@ export async function runPipeline(
     updateStory(storyId, (s) => ({
       ...s,
       status: "generating_text",
-      progress: { stage: "generating_text", detail: "AI 正在思考…" },
+      progress: { stage: "generating_text", detail: "正在准备…" },
     }));
 
     const llmStart = Date.now();
@@ -81,7 +81,7 @@ export async function runPipeline(
           if (chars > 0 && chars % 300 < 5) {
             updateStory(storyId, (s) =>
               s.status === "generating_text" || s.status === "streaming"
-                ? { ...s, progress: { stage: s.status, detail: `已生成 ${chars} 字…` } }
+                ? { ...s, progress: { stage: s.status, detail: `已就位 ${chars} 字…` } }
                 : s,
             );
           }
@@ -91,7 +91,7 @@ export async function runPipeline(
             ...s,
             title,
             status: "streaming",
-            progress: { stage: "streaming", detail: "标题已生成，正在写故事…" },
+            progress: { stage: "streaming", detail: "标题已就位，章节准备中…" },
           }));
         },
         onSummary: (summary) => {
@@ -113,7 +113,7 @@ export async function runPipeline(
             chapters: [...s.chapters.filter((c) => c.idx !== idx), stored].sort((a, b) => a.idx - b.idx),
             progress: {
               stage: "streaming",
-              detail: `第 ${idx + 1} 章已生成，可以开始读了`,
+              detail: `第 ${idx + 1} 章已就位，可以开始读了`,
             },
           }));
           // Background TTS — don't await here so the LLM stream can keep flowing.
@@ -169,7 +169,7 @@ export async function runPipeline(
         progress: {
           stage: hasText ? "partial_text" : "failed",
           detail: hasText
-            ? "故事没能写完，已生成的部分可以阅读。"
+            ? "故事没能完整呈现，已有部分可以阅读。"
             : userFacingErrorMessage(err),
         },
       };
@@ -214,10 +214,10 @@ function audioProgress(chapters: StoredChapter[]): StoredStory["progress"] {
 
 function userFacingErrorMessage(err: any): string {
   const code = err?.message ?? String(err);
-  if (code === "LLM_EMPTY") return "AI 这次没生成内容。可能是服务端临时抖动，请重试一次。";
-  if (code === "LLM_TIMEOUT") return "AI 这次响应太慢，请稍后重试一次。";
-  if (code === "LLM_BAD_JSON") return "AI 返回的内容格式异常，请重试。";
-  if (code.includes("rate_limit_error")) return "AI 限流了，请稍候再试。";
+  if (code === "LLM_EMPTY") return "这次没准备好。可能是服务端临时抖动，请重试一次。";
+  if (code === "LLM_TIMEOUT") return "这次响应太慢，请稍后重试一次。";
+  if (code === "LLM_BAD_JSON") return "出现一个内容格式问题，请重试。";
+  if (code.includes("rate_limit_error")) return "请求太频繁了，请稍候再试。";
   if (code.includes("HTTP 5")) return "上游服务暂时不可用，请稍候再试。";
-  return "生成失败，请稍候重试。";
+  return "没能准备好，请稍候重试。";
 }

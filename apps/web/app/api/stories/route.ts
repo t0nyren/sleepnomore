@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json(
-      { error: "auth_required", message: "请先登录再创作故事。" },
+      { error: "auth_required", message: "请先登录再准备故事。" },
       { status: 401 },
     );
   }
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
   console.log(`[api] POST /api/stories user=${user.id} ip=${ip} rl=${rl.ok ? "ok" : `blocked-${rl.retryAfterSec}s`}`);
   if (!rl.ok) {
     return NextResponse.json(
-      { error: "rate_limited", retryAfterSec: rl.retryAfterSec, message: `请稍等 ${rl.retryAfterSec} 秒再试。每 5 分钟最多生成 1 条。` },
+      { error: "rate_limited", retryAfterSec: rl.retryAfterSec, message: `请稍等 ${rl.retryAfterSec} 秒再试。每 5 分钟最多 1 次。` },
       { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
     );
   }

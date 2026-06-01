@@ -1,7 +1,7 @@
 {
   "name": "眠安",
   "short_name": "眠安",
-  "description": "用 AI 为今夜写一篇助眠故事，伴你入睡。",
+  "description": "为今夜准备一段温柔的睡前故事，陪你入眠。",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

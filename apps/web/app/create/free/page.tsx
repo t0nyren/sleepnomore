@@ -161,10 +161,10 @@ export default function CreateFreePage() {
           onClick={handleGenerate}
           disabled={text.trim().length < 8 || generating}
         >
-          {generating ? "正在创作…" : "立即生成"}
+          {generating ? "准备中…" : "为今夜准备"}
         </button>
         <p className="text-caption muted">
-          {generating ? "AI 正在写故事 · 音频合成（约 2 分钟）" : `${style} · ${VOICE_LABEL[voiceId] ?? "默认声音"} · 约 ${duration} 分钟`}
+          {generating ? "正在准备故事 · 音频合成（约 2 分钟）" : `${style} · ${VOICE_LABEL[voiceId] ?? "默认声音"} · 约 ${duration} 分钟`}
         </p>
       </div>
       {error ? <p className="text-caption" style={{ color: "var(--color-error)" }}>{error}</p> : null}

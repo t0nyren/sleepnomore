@@ -157,8 +157,8 @@ export function finalizeIfStale(s: StoredStory): StoredStory {
     progress: {
       stage: hasText ? "partial_text" : "failed",
       detail: hasText
-        ? "故事已生成的部分可以阅读。音频没有合成完成。"
-        : "生成中断，请重新创建。",
+        ? "故事的部分内容已可阅读。音频没有合成完成。"
+        : "请求中断，请重新创建。",
     },
   };
   saveStory(next);

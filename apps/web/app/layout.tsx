@@ -10,7 +10,7 @@ const sansSC = Noto_Sans_SC({ subsets: ["latin"], weight: ["400", "500", "700", 
 
 export const metadata: Metadata = {
   title: "眠安 · 听一段，睡过去",
-  description: "用 AI 为今夜写一篇助眠故事，伴你入睡。",
+  description: "为今夜准备一段温柔的睡前故事，陪你入眠。",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

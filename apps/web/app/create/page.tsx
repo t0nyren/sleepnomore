@@ -141,11 +141,11 @@ export default function CreateGuidedPage() {
 
       <div className="flex flex-wrap items-center gap-4 pt-2">
         <button className="cta-primary disabled:opacity-60" onClick={handleGenerate} disabled={generating}>
-          {generating ? "正在创作…" : "立即生成"}
+          {generating ? "准备中…" : "为今夜准备"}
         </button>
         <p className="text-caption muted">
           {generating
-            ? "AI 正在写故事 · 音频合成（约 2 分钟，可关掉网页等会回来）"
+            ? "正在准备故事 · 音频合成（约 2 分钟，可关掉网页等会回来）"
             : `${theme} · ${style} · ${duration} 分钟 · ${VOICE_LABEL[voiceId] ?? "默认声音"}`}
         </p>
       </div>

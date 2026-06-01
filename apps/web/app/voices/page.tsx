@@ -64,8 +64,8 @@ export default function VoicesPage() {
         </Link>
         <h1 className="display text-h1">挑一个今夜的声音。</h1>
         <p className="muted max-w-[44ch] text-[1.0625rem]">
-          点试听后选一个 — 选中即保存，下次创作会用这个声音。
-          <span className="opacity-70"> 未来可以录制 60 秒样本生成你自己的声音 —— 即将上线。</span>
+          点试听后选一个 — 选中即保存，下次会用这个声音。
+          <span className="opacity-70"> 未来可以录制 60 秒样本制作你自己的声音 —— 即将上线。</span>
         </p>
       </header>
 
@@ -141,7 +141,7 @@ export default function VoicesPage() {
         <div className="float-card flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="flex flex-1 flex-col gap-1">
             <span className="display text-h3">用你的声音念故事</span>
-            <span className="text-caption muted">录制 60 秒中性文本，生成专属声音模型。</span>
+            <span className="text-caption muted">录制 60 秒中性文本，制作专属声音。</span>
           </div>
           <span className="cta-ghost opacity-70 cursor-not-allowed">即将上线</span>
         </div>
