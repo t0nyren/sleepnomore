@@ -20,7 +20,7 @@ const config: CapacitorConfig = {
     cleartext: false,
   },
   ios: {
-    contentInset: "always",      // keep status-bar safe area, no extra inset jank
+    contentInset: "never",       // WebView fills the status bar area; CSS handles safe-area spacing
   },
 };
 
