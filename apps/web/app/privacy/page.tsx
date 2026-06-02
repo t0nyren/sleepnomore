@@ -69,8 +69,8 @@ export default function PrivacyPage() {
         <h2 className="display text-h3 mt-4">8. 联系我们</h2>
         <p>
           对本政策有疑问、想行使数据相关权利或反馈问题，请发送邮件至：
-          <a href="mailto:support@sleepnomore.secondlife.today" className="ml-1 underline" style={{ color: "var(--color-accent-grape)" }}>
-            support@sleepnomore.secondlife.today
+          <a href="mailto:tony.ren@reorc.com" className="ml-1 underline" style={{ color: "var(--color-accent-grape)" }}>
+            tony.ren@reorc.com
           </a>
         </p>
       </section>

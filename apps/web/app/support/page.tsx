@@ -39,8 +39,8 @@ export default function SupportPage() {
         <h2 className="display text-h3 mt-4">联系我们</h2>
         <p>
           有任何问题、反馈或建议，请发邮件给我们：
-          <a href="mailto:support@sleepnomore.secondlife.today" className="ml-1 underline" style={{ color: "var(--color-accent-grape)" }}>
-            support@sleepnomore.secondlife.today
+          <a href="mailto:tony.ren@reorc.com" className="ml-1 underline" style={{ color: "var(--color-accent-grape)" }}>
+            tony.ren@reorc.com
           </a>
         </p>
         <p className="text-caption muted">通常 1-2 个工作日内回复。</p>
