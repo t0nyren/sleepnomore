@@ -36,4 +36,28 @@ Release AAB output:
 android/app/build/outputs/bundle/release/app-release.aab
 ```
 
-Release builds still need a Google Play signing setup before store upload.
+For direct APK distribution, configure release signing in `android/local.properties`
+(ignored by git):
+
+```properties
+SLEEPNOMORE_KEYSTORE_FILE=/Users/dongniren/work/sleepnomore-android.keystore
+SLEEPNOMORE_KEYSTORE_PASSWORD=<password>
+SLEEPNOMORE_KEY_ALIAS=sleepnomore
+SLEEPNOMORE_KEY_PASSWORD=<password>
+```
+
+Then run:
+
+```sh
+cd android
+./gradlew assembleRelease
+```
+
+Signed release APK output:
+
+```text
+android/app/build/outputs/apk/release/app-release.apk
+```
+
+Keep the keystore permanently. Losing it means future APKs cannot upgrade
+existing installs.

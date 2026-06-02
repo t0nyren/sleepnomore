@@ -1,5 +1,24 @@
 apply plugin: 'com.android.application'
 
+def sleepNoMoreSigningProperties = new Properties()
+def sleepNoMoreSigningPropertiesFile = rootProject.file('local.properties')
+if (sleepNoMoreSigningPropertiesFile.exists()) {
+    sleepNoMoreSigningPropertiesFile.withInputStream { sleepNoMoreSigningProperties.load(it) }
+}
+
+def sleepNoMoreSigningProperty = { name ->
+    project.findProperty(name) ?: sleepNoMoreSigningProperties.getProperty(name)
+}
+
+def sleepNoMoreKeystoreFile = sleepNoMoreSigningProperty('SLEEPNOMORE_KEYSTORE_FILE')
+def sleepNoMoreKeystorePassword = sleepNoMoreSigningProperty('SLEEPNOMORE_KEYSTORE_PASSWORD')
+def sleepNoMoreKeyAlias = sleepNoMoreSigningProperty('SLEEPNOMORE_KEY_ALIAS')
+def sleepNoMoreKeyPassword = sleepNoMoreSigningProperty('SLEEPNOMORE_KEY_PASSWORD')
+def hasSleepNoMoreReleaseSigning = sleepNoMoreKeystoreFile &&
+        sleepNoMoreKeystorePassword &&
+        sleepNoMoreKeyAlias &&
+        sleepNoMoreKeyPassword
+
 android {
     namespace = "com.sleepnomore.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,8 +35,21 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (hasSleepNoMoreReleaseSigning) {
+            release {
+                storeFile file(sleepNoMoreKeystoreFile)
+                storePassword sleepNoMoreKeystorePassword
+                keyAlias sleepNoMoreKeyAlias
+                keyPassword sleepNoMoreKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
+            if (hasSleepNoMoreReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
