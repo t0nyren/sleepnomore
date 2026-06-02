@@ -37,11 +37,13 @@ export default async function TonightPage() {
             <>
               <Link href="/create" className="cta-primary">为今夜准备一篇</Link>
               <Link href="/create/free" className="cta-ghost">自由描述</Link>
+              <Link href="/download" className="cta-ghost">下载 App</Link>
             </>
           ) : (
             <>
               <Link href="/login" className="cta-primary">登录后开始</Link>
               <Link href="/login?mode=register" className="cta-ghost">新用户注册</Link>
+              <Link href="/download" className="cta-ghost">下载 App</Link>
             </>
           )}
         </div>
