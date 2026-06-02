@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">眠安</string>
+    <string name="title_activity_main">眠安</string>
+    <string name="package_name">com.sleepnomore.app</string>
+    <string name="custom_url_scheme">com.sleepnomore.app</string>
+</resources>
