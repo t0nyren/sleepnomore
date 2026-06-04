@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+const APP_STORE_URL = "https://apps.apple.com/app/id6775396041";
+
 export const metadata: Metadata = {
   title: "下载 App · 眠安",
   description: "下载眠安 iOS 和 Android 客户端。",
@@ -15,7 +17,7 @@ export default function DownloadPage() {
         </span>
         <h1 className="display text-display leading-[1.08]">下载眠安 App</h1>
         <p className="max-w-[42ch] muted text-[1.0625rem]">
-          Android 可直接下载安装包。iOS 版本上线后，会在这里更新 App Store 官方链接。
+          Android 可直接下载安装包。iOS 可通过 App Store 官方页面下载。
         </p>
       </section>
 
@@ -38,12 +40,12 @@ export default function DownloadPage() {
             <span className="text-caption font-semibold muted">iOS</span>
             <h2 className="display text-h2">App Store</h2>
             <p className="muted">
-              iOS 版本正在准备上线；正式 App Store 地址确认后会替换到这里。
+              适用于 iPhone。打开 App Store 后按页面提示获取或安装。
             </p>
           </div>
-          <span className="cta-ghost mt-auto cursor-not-allowed opacity-60" aria-disabled="true">
-            即将上线
-          </span>
+          <a href={APP_STORE_URL} className="cta-primary mt-auto" target="_blank" rel="noreferrer">
+            前往 App Store
+          </a>
         </article>
       </section>
 
