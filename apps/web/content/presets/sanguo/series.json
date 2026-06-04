@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "sanguo",
+  "title": "三国演义",
+  "subtitle": "白话睡前版",
+  "description": "罗贯中《三国演义》全本 120 回，改写为白话睡前故事。每一回约 15 分钟，节奏舒缓，战斗一笔带过。",
+  "totalChapters": 120,
+  "tags": ["历史", "古典名著", "三国"],
+  "language": "zh-CN",
+  "tocFile": "_toc.json"
+}
