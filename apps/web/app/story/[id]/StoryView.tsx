@@ -31,6 +31,7 @@ export function StoryView({ storyId }: { storyId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [size, setSize] = useState<number>(18);
   const [active, setActive] = useState(0);
+  const [autoPlayRequest, setAutoPlayRequest] = useState<{ idx: number; token: number } | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -131,8 +132,19 @@ export function StoryView({ storyId }: { storyId: string }) {
   function goToChapter(targetIdx: number) {
     const clamped = Math.max(0, Math.min(story!.chapters.length - 1, targetIdx));
     setActive(clamped);
+    setAutoPlayRequest(null);
     // Scroll the story view back to the top so the reader sees the new chapter
     // from its title, not whatever offset they were at in the previous one.
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
+  function autoAdvanceFrom(currentIdx: number) {
+    if (!story || currentIdx >= story.chapters.length - 1) return;
+    const nextIdx = currentIdx + 1;
+    setActive(nextIdx);
+    setAutoPlayRequest((request) => ({ idx: nextIdx, token: (request?.token ?? 0) + 1 }));
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -165,7 +177,14 @@ export function StoryView({ storyId }: { storyId: string }) {
         ) : null}
       </header>
 
-      <AudioPlayer chapter={story.chapters[safeActive]} chapterNumber={safeActive + 1} storyId={story.id} />
+      <AudioPlayer
+        chapter={story.chapters[safeActive]}
+        chapterNumber={safeActive + 1}
+        storyId={story.id}
+        autoPlayToken={autoPlayRequest?.idx === safeActive ? autoPlayRequest.token : 0}
+        onEnded={() => autoAdvanceFrom(safeActive)}
+        onAutoPlayHandled={() => setAutoPlayRequest(null)}
+      />
 
       <div className="float-card flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2.5">
@@ -276,7 +295,21 @@ function ChapterBody({ chapter, size }: { chapter: Chapter; size: number }) {
   );
 }
 
-function AudioPlayer({ chapter, chapterNumber, storyId }: { chapter: Chapter; chapterNumber: number; storyId: string }) {
+function AudioPlayer({
+  chapter,
+  chapterNumber,
+  storyId,
+  autoPlayToken,
+  onEnded,
+  onAutoPlayHandled,
+}: {
+  chapter: Chapter;
+  chapterNumber: number;
+  storyId: string;
+  autoPlayToken: number;
+  onEnded: () => void;
+  onAutoPlayHandled: () => void;
+}) {
   // No audio yet for this chapter — degrade gracefully.
   if (chapter.status === "audio_failed") {
     return (
@@ -299,11 +332,28 @@ function AudioPlayer({ chapter, chapterNumber, storyId }: { chapter: Chapter; ch
       audioKey={chapter.audioKey ?? `idx-${chapter.idx}`}
       src={chapter.audioUrl}
       chapterNumber={chapterNumber}
+      autoPlayToken={autoPlayToken}
+      onEnded={onEnded}
+      onAutoPlayHandled={onAutoPlayHandled}
     />
   );
 }
 
-function ActiveAudioPlayer({ audioKey, src, chapterNumber }: { audioKey: string; src: string; chapterNumber: number }) {
+function ActiveAudioPlayer({
+  audioKey,
+  src,
+  chapterNumber,
+  autoPlayToken,
+  onEnded,
+  onAutoPlayHandled,
+}: {
+  audioKey: string;
+  src: string;
+  chapterNumber: number;
+  autoPlayToken: number;
+  onEnded: () => void;
+  onAutoPlayHandled: () => void;
+}) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -326,6 +376,20 @@ function ActiveAudioPlayer({ audioKey, src, chapterNumber }: { audioKey: string;
     a.load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audioKey]);
+
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a || autoPlayToken <= 0) return;
+    a.play()
+      .then(() => {
+        setPlaying(true);
+        onAutoPlayHandled();
+      })
+      .catch(() => {
+        setPlaying(false);
+        onAutoPlayHandled();
+      });
+  }, [autoPlayToken, audioKey, onAutoPlayHandled]);
 
   function togglePlay() {
     const a = audioRef.current;
@@ -410,6 +474,7 @@ function ActiveAudioPlayer({ audioKey, src, chapterNumber }: { audioKey: string;
         onEnded={() => {
           setPlaying(false);
           setCurrent(0);
+          onEnded();
         }}
       />
     </div>
