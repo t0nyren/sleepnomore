@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "shuihu",
+  "title": "水浒传",
+  "subtitle": "白话睡前版",
+  "description": "施耐庵《水浒传》一百回本，改写为白话睡前故事。每一回约 13–15 分钟，节奏舒缓，江湖恩仇一笔带过。",
+  "totalChapters": 100,
+  "tags": ["古典名著", "江湖", "宋朝"],
+  "language": "zh-CN",
+  "tocFile": "_toc.json"
+}
