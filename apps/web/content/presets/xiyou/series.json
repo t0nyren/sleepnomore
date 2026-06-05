@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "xiyou",
+  "title": "西游记",
+  "subtitle": "白话睡前版",
+  "description": "吴承恩《西游记》一百回本，改写为白话睡前故事。每一回约 13–15 分钟，节奏舒缓，妖魔斗法一笔带过。",
+  "totalChapters": 100,
+  "tags": ["古典名著", "神话", "唐代"],
+  "language": "zh-CN",
+  "tocFile": "_toc.json"
+}
