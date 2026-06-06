@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "hongloumeng",
+  "title": "红楼梦",
+  "subtitle": "白话睡前版",
+  "description": "曹雪芹《红楼梦》一百二十回程乙本，改写为白话睡前故事。每一回约 13–15 分钟，节奏舒缓，诗词判词改成两三句白话，偏家族日常的氛围。",
+  "totalChapters": 120,
+  "tags": ["古典名著", "明清小说", "家族"],
+  "language": "zh-CN",
+  "tocFile": "_toc.json"
+}
