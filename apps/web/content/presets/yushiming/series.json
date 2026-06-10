@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "yushiming",
+  "title": "喻世明言",
+  "subtitle": "白话睡前版",
+  "description": "冯梦龙《喻世明言》（原名《古今小说》）四十卷，三言之一，改写为白话睡前故事。每卷一个独立故事，约 13–15 分钟，节奏舒缓，市井人情、因果离合。",
+  "totalChapters": 40,
+  "tags": ["古典名著", "明清小说", "话本", "三言"],
+  "language": "zh-CN",
+  "tocFile": "_toc.json"
+}
