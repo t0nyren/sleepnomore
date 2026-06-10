@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "xingshihengyan",
+  "title": "醒世恒言",
+  "subtitle": "白话睡前版",
+  "description": "冯梦龙《醒世恒言》四十卷，每卷一个独立的宋元明市井故事，改写为白话睡前故事。每一回约 13–15 分钟，节奏舒缓，多写街市人情，恩怨善恶一笔带过。",
+  "totalChapters": 40,
+  "tags": ["古典名著", "话本", "三言", "市井"],
+  "language": "zh-CN",
+  "tocFile": "_toc.json"
+}
