@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "erkepaian",
+  "title": "二刻拍案惊奇",
+  "subtitle": "白话睡前版",
+  "description": "凌濛初《二刻拍案惊奇》四十卷，改写为白话睡前故事，市井人情、因果离合，节奏舒缓，公案奸情一笔带过。",
+  "totalChapters": 40,
+  "tags": [
+    "古典小说",
+    "拟话本",
+    "凌濛初",
+    "二拍"
+  ],
+  "language": "zh-CN",
+  "tocFile": "_toc.json"
+}
