@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "chukepaian",
+  "title": "初刻拍案惊奇",
+  "subtitle": "白话睡前版",
+  "description": "凌濛初《初刻拍案惊奇》四十卷，改写为白话睡前故事。每卷一个独立故事，节奏舒缓，约十五分钟，奇情曲折一笔带过，留一个安静的落点。",
+  "totalChapters": 40,
+  "tags": ["话本", "古典小说", "二拍", "凌濛初"],
+  "language": "zh-CN",
+  "tocFile": "_toc.json"
+}
