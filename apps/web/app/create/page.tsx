@@ -154,23 +154,24 @@ export default function CreateGuidedPage() {
   );
 }
 
-function ModeTabs({ current }: { current: "guided" | "free" }) {
+function ModeTabs({ current }: { current: "guided" | "free" | "companion" }) {
+  const tabs = [
+    { key: "guided" as const, href: "/create", label: "引导模式" },
+    { key: "free" as const, href: "/create/free", label: "自由描述" },
+    { key: "companion" as const, href: "/create/companion", label: "专注力陪伴" },
+  ];
   return (
     <div className="inline-flex items-center gap-1 self-start rounded-full glass-strong p-1.5 text-caption font-medium">
-      <Link
-        href="/create"
-        className={`rounded-full px-4 py-1.5 transition-all ${current === "guided" ? "text-white shadow-lg" : "muted hover:text-[var(--color-ink-900)]"}`}
-        style={current === "guided" ? { background: "linear-gradient(135deg, #9D6BFF, #4FB6FF)" } : undefined}
-      >
-        引导模式
-      </Link>
-      <Link
-        href="/create/free"
-        className={`rounded-full px-4 py-1.5 transition-all ${current === "free" ? "text-white shadow-lg" : "muted hover:text-[var(--color-ink-900)]"}`}
-        style={current === "free" ? { background: "linear-gradient(135deg, #9D6BFF, #4FB6FF)" } : undefined}
-      >
-        自由描述
-      </Link>
+      {tabs.map((t) => (
+        <Link
+          key={t.key}
+          href={t.href}
+          className={`rounded-full px-4 py-1.5 transition-all ${current === t.key ? "text-white shadow-lg" : "muted hover:text-[var(--color-ink-900)]"}`}
+          style={current === t.key ? { background: "linear-gradient(135deg, #9D6BFF, #4FB6FF)" } : undefined}
+        >
+          {t.label}
+        </Link>
+      ))}
     </div>
   );
 }

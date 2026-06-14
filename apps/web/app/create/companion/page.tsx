@@ -18,18 +18,19 @@ const VOICE_AVATAR_BG: Record<string, string> = {
   v_yujie: "linear-gradient(135deg,#FF9EC4,#FFD24D)",
 };
 
-const HINTS = [
-  { text: "一位古代书生在江南雨夜独行的故事，语言要温柔。", color: "#FF9EC4" },
-  { text: "在北方小镇的旧式火车站里发生的相遇，节奏要慢。", color: "#A2E4FF" },
-  { text: "一只猫在月光下回忆自己经过的所有屋顶。", color: "#FFD668" },
-  { text: "海边灯塔守夜人写给远方爱人的一封信。", color: "#9DF3D7" },
+const SUBJECT_HINTS = [
+  { text: "宋代文人的日常", color: "#FF9EC4" },
+  { text: "高斯定理", color: "#A2E4FF" },
+  { text: "attention 机制", color: "#FFD668" },
+  { text: "古希腊神话里的奥德修斯", color: "#9DF3D7" },
 ];
 
 const STYLES = ["温柔抒情", "流畅生动", "活泼诙谐", "引经据典"];
 
-export default function CreateFreePage() {
+export default function CreateCompanionPage() {
   const router = useRouter();
-  const [text, setText] = useState("");
+  const [subject, setSubject] = useState("");
+  const [emphasis, setEmphasis] = useState("");
   const [style, setStyle] = useState("温柔抒情");
   const [duration, setDuration] = useState(15);
   const [voiceId, setVoiceId] = useState<string>(DEFAULT_VOICE);
@@ -41,7 +42,7 @@ export default function CreateFreePage() {
   }, []);
 
   async function handleGenerate() {
-    if (generating || text.trim().length < 8) return;
+    if (generating || subject.trim().length < 2) return;
     setGenerating(true);
     setError(null);
     try {
@@ -49,8 +50,9 @@ export default function CreateFreePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode: "free",
-          prompt: text.trim(),
+          mode: "companion",
+          subject: subject.trim(),
+          emphasis: emphasis.trim() || undefined,
           style,
           durationMin: duration,
           voiceId,
@@ -68,34 +70,37 @@ export default function CreateFreePage() {
   return (
     <div className="flex flex-col gap-12 pt-4 sm:pt-8">
       <header className="flex flex-col gap-4">
-        <ModeTabs current="free" />
-        <h1 className="display text-h1 max-w-[22ch]">用你的话描述今夜想听的故事。</h1>
+        <ModeTabs current="companion" />
+        <h1 className="display text-h1 max-w-[22ch]">让今夜的故事陪你与一个主题相伴。</h1>
+        <p className="text-body muted max-w-[34ch]">
+          专注力陪伴：故事会把你选的主题作为环境底色——书页、谈话、灯下笔记——自然铺在情节里。这是陪伴，不是学习。
+        </p>
       </header>
 
       <section className="flex flex-col gap-3.5">
         <div className="flex items-center justify-between">
-          <h3 className="text-caption uppercase tracking-[0.14em] font-semibold muted">描述</h3>
-          <span className="text-caption muted">{text.length}/500</span>
+          <h3 className="text-caption uppercase tracking-[0.14em] font-semibold muted">主题</h3>
+          <span className="text-caption muted">{subject.length}/40</span>
         </div>
         <div className="glass-strong p-1">
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value.slice(0, 500))}
-            rows={8}
-            placeholder="例如：写一个发生在江南雨夜的故事，主角是一位独行的书生，语言要温柔…"
-            className="w-full resize-none rounded-[1.25rem] bg-transparent p-6 text-body leading-relaxed text-[var(--color-on-glass)] placeholder:text-[var(--color-ink-300)] focus:outline-none"
+          <input
+            type="text"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value.slice(0, 40))}
+            placeholder="例如：宋代文人 / 高斯定理 / attention 机制"
+            className="w-full rounded-[1.25rem] bg-transparent p-6 text-body leading-relaxed text-[var(--color-on-glass)] placeholder:text-[var(--color-ink-300)] focus:outline-none"
           />
         </div>
       </section>
 
       <section className="flex flex-col gap-3.5">
-        <h3 className="text-caption uppercase tracking-[0.14em] font-semibold muted">需要灵感？</h3>
+        <h3 className="text-caption uppercase tracking-[0.14em] font-semibold muted">灵感</h3>
         <ul className="grid gap-3 sm:grid-cols-2">
-          {HINTS.map((h) => (
+          {SUBJECT_HINTS.map((h) => (
             <li key={h.text}>
               <button
                 type="button"
-                onClick={() => setText(h.text)}
+                onClick={() => setSubject(h.text)}
                 className="float-card w-full text-left flex items-start gap-3"
               >
                 <span className="mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: h.color, boxShadow: `0 0 10px ${h.color}cc` }} />
@@ -104,6 +109,22 @@ export default function CreateFreePage() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="flex flex-col gap-3.5">
+        <div className="flex items-center justify-between">
+          <h3 className="text-caption uppercase tracking-[0.14em] font-semibold muted">想感受的认知（可选）</h3>
+          <span className="text-caption muted">{emphasis.length}/200</span>
+        </div>
+        <div className="glass-strong p-1">
+          <textarea
+            value={emphasis}
+            onChange={(e) => setEmphasis(e.target.value.slice(0, 200))}
+            rows={3}
+            placeholder="例如：注意力机制让模型只看见眼前最重要的几个词。"
+            className="w-full resize-none rounded-[1.25rem] bg-transparent p-6 text-body leading-relaxed text-[var(--color-on-glass)] placeholder:text-[var(--color-ink-300)] focus:outline-none"
+          />
+        </div>
       </section>
 
       <section className="flex flex-col gap-3.5">
@@ -159,7 +180,7 @@ export default function CreateFreePage() {
         <button
           className="cta-primary disabled:opacity-50"
           onClick={handleGenerate}
-          disabled={text.trim().length < 8 || generating}
+          disabled={subject.trim().length < 2 || generating}
         >
           {generating ? "准备中…" : "为今夜准备"}
         </button>
@@ -172,11 +193,13 @@ export default function CreateFreePage() {
   );
 }
 
-function ModeTabs({ current }: { current: "guided" | "free" | "companion" }) {
-  const tabs = [
-    { key: "guided" as const, href: "/create", label: "引导模式" },
-    { key: "free" as const, href: "/create/free", label: "自由描述" },
-    { key: "companion" as const, href: "/create/companion", label: "专注力陪伴" },
+type Mode = "guided" | "free" | "companion";
+
+function ModeTabs({ current }: { current: Mode }) {
+  const tabs: { key: Mode; href: string; label: string }[] = [
+    { key: "guided", href: "/create", label: "引导模式" },
+    { key: "free", href: "/create/free", label: "自由描述" },
+    { key: "companion", href: "/create/companion", label: "专注力陪伴" },
   ];
   return (
     <div className="inline-flex items-center gap-1 self-start rounded-full glass-strong p-1.5 text-caption font-medium">

@@ -117,7 +117,15 @@ export type FreeParams = {
   durationMin: number;
 };
 
-export type StoryParams = GuidedParams | FreeParams;
+export type CompanionParams = {
+  mode: "companion";
+  subject: string;          // 用户输入的主题，如"高斯定理" / "东汉历史" / "attention 机制"
+  emphasis?: string;        // 想感受/加强的认知（可选），如"二维空间的图形周长与面积关系"
+  style?: string;
+  durationMin: number;
+};
+
+export type StoryParams = GuidedParams | FreeParams | CompanionParams;
 
 export function buildUserPrompt(params: StoryParams): string {
   const chapters = chapterCountFor(params.durationMin);
@@ -152,6 +160,37 @@ ${themeSection}
 
 # 语言风格
 ${params.style}
+
+请按系统提示要求创作并输出 JSON。`;
+  }
+
+  if (params.mode === "companion") {
+    const subjectSection = `# 模式：专注力陪伴
+
+用户希望今晚的故事与一个主题相伴：「${params.subject}」${
+      params.emphasis ? `；其中用户特别想感受的是：${params.emphasis}` : ""
+    }。
+
+# 主题融入方法（必须严格遵守）
+
+1. **主题作为环境密度，不是讲课**。把与主题相关的元素自然铺在故事的物件、场景、人物视角中——比如书架上的一本旧书、墙上的一张笺纸、远处传来的几句低语、人物路过时看见的一个标识牌、案头被压住的一页笔记。让主题成为房间里的空气，而不是台词或论述。
+
+2. **不要让人物正在学习这个主题**。人物可以是这个领域的从业者（研究员/老师/翻译/工匠/守夜人/抄写员），但他/她此刻不是在学习——是在沉淀、整理、漫步、看书、煮茶、收拾、值夜。
+
+3. **不要展开论证或定理证明**。所有主题元素都点到为止：一两行字的标题、一句被引用的话、一个被瞥见的图、一段不完整的话语。读者捕捉到这些信息密度但不被它们抓住注意力。
+
+4. **每章自然嵌入 1-2 处主题相关意象**。换花样：书页、谈话、灯下笔记、远处广告、回忆中的旧课、墙上一张被遗忘的纸条、抽屉里一封旧信。不能整篇都用同一种载体。
+
+5. **绝不**写"用户应该记住/理解这个主题"，绝不暗示学习效果。本模式定位为陪伴，不是教学。
+
+# 故事主体仍是助眠故事
+
+主题元素只是底色——故事的主干仍是一段安静、舒缓、有视觉化画面的睡前叙事，必须完整遵守系统提示的所有助眠规则（节奏缓慢、视觉化、避免刺激、温柔结局、章节切分、字数硬约束、纯简体中文、不要 meta 注释）。`;
+
+    return `${targetSection}
+
+${subjectSection}
+${params.style ? `\n# 语言风格\n${params.style}` : ""}
 
 请按系统提示要求创作并输出 JSON。`;
   }

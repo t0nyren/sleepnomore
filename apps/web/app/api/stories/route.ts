@@ -14,16 +14,26 @@ const VOICE_KEYS = Object.keys(PRESET_VOICES) as VoiceId[];
 
 const CreateStorySchema = z
   .object({
-    mode: z.enum(["guided", "free"]),
+    mode: z.enum(["guided", "free", "companion"]),
     theme: z.string().max(20).optional(),
     style: z.string().max(20).optional(),
     prompt: z.string().max(500).optional(),
+    subject: z.string().max(40).optional(),
+    emphasis: z.string().max(200).optional(),
     durationMin: z.number().int().min(5).max(30),
     voiceId: z.enum(VOICE_KEYS as [VoiceId, ...VoiceId[]]).default(VOICE_KEYS[0]),
   })
   .refine(
-    (v) => v.mode === "guided" ? !!v.theme && !!v.style : (v.prompt && v.prompt.trim().length >= 8),
-    { message: "guided needs theme+style; free needs prompt (>=8 chars)" },
+    (v) => {
+      if (v.mode === "guided") return !!v.theme && !!v.style;
+      if (v.mode === "free") return !!v.prompt && v.prompt.trim().length >= 8;
+      // companion
+      return !!v.subject && v.subject.trim().length >= 2;
+    },
+    {
+      message:
+        "guided needs theme+style; free needs prompt (>=8 chars); companion needs subject (>=2 chars)",
+    },
   );
 
 function clientIp(req: Request): string {
@@ -65,9 +75,28 @@ export async function POST(req: Request) {
   const id = newStoryId();
   const now = new Date().toISOString();
 
-  const params = parsed.data.mode === "guided"
-    ? { mode: "guided" as const, theme: parsed.data.theme!, style: parsed.data.style!, durationMin: parsed.data.durationMin }
-    : { mode: "free" as const, prompt: parsed.data.prompt!, style: parsed.data.style, durationMin: parsed.data.durationMin };
+  const params =
+    parsed.data.mode === "guided"
+      ? {
+          mode: "guided" as const,
+          theme: parsed.data.theme!,
+          style: parsed.data.style!,
+          durationMin: parsed.data.durationMin,
+        }
+      : parsed.data.mode === "free"
+      ? {
+          mode: "free" as const,
+          prompt: parsed.data.prompt!,
+          style: parsed.data.style,
+          durationMin: parsed.data.durationMin,
+        }
+      : {
+          mode: "companion" as const,
+          subject: parsed.data.subject!,
+          emphasis: parsed.data.emphasis,
+          style: parsed.data.style,
+          durationMin: parsed.data.durationMin,
+        };
 
   saveStory({
     id,
@@ -80,6 +109,8 @@ export async function POST(req: Request) {
       theme: parsed.data.theme,
       style: parsed.data.style,
       prompt: parsed.data.prompt,
+      subject: parsed.data.subject,
+      emphasis: parsed.data.emphasis,
       durationMin: parsed.data.durationMin,
     },
     voiceId: parsed.data.voiceId,

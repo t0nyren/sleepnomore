@@ -36,10 +36,12 @@ export type StoredStory = {
   createdAt: string;
   updatedAt: string;
   params: {
-    mode: "guided" | "free";
+    mode: "guided" | "free" | "companion";
     theme?: string;
     style?: string;
     prompt?: string;
+    subject?: string;        // companion mode: 主题
+    emphasis?: string;       // companion mode: 想感受的认知
     durationMin: number;
   };
   voiceId: string;             // preset key like "v_jingying"
