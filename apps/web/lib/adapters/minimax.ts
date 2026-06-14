@@ -19,20 +19,15 @@ import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { extract } from "tar-stream";
+import { PRESET_VOICES, isPresetVoiceId, type VoiceId } from "@/lib/voices/catalog";
 
 export const MINIMAX_MODEL = "speech-2.8-hd";
 const BASE = "https://api.minimaxi.com";
 const SYNC_MAX_CHARS_RAW = parseInt(process.env.MIANAN_TTS_SYNC_MAX_CHARS ?? "2000", 10);
 const SYNC_MAX_CHARS = Number.isFinite(SYNC_MAX_CHARS_RAW) && SYNC_MAX_CHARS_RAW > 0 ? SYNC_MAX_CHARS_RAW : 2000;
 
-export const PRESET_VOICES = {
-  v_jingying:   { providerVoiceId: "male-qn-jingying-jingpin",        displayName: "磁性男声 (精英)" },
-  v_gentleman:  { providerVoiceId: "Chinese (Mandarin)_Gentleman",    displayName: "温润男声" },
-  v_radio_host: { providerVoiceId: "Chinese (Mandarin)_Radio_Host",   displayName: "电台男主播" },
-  v_yujie:      { providerVoiceId: "female-yujie-jingpin",            displayName: "御姐声" },
-} as const;
-
-export type VoiceId = keyof typeof PRESET_VOICES;
+export { PRESET_VOICES, isPresetVoiceId };
+export type { VoiceId };
 
 function loadApiKey(): string {
   if (process.env.MINIMAX_API_KEY) return process.env.MINIMAX_API_KEY;
@@ -56,6 +51,61 @@ async function authedFetch(url: string, init?: RequestInit): Promise<any> {
     throw new Error(`Minimax error: ${body.base_resp.status_code} ${body.base_resp.status_msg}`);
   }
   return body;
+}
+
+export type VoiceSelection = VoiceId | { providerVoiceId: string };
+
+export async function cloneVoiceFromAudio(input: {
+  audio: Blob;
+  filename: string;
+  voiceId: string;
+  needNoiseReduction?: boolean;
+  needVolumeNormalization?: boolean;
+}): Promise<{
+  providerVoiceId: string;
+  sourceFileId: number;
+  demoAudio: string | null;
+  inputSensitive: boolean;
+  inputSensitiveType: number | null;
+}> {
+  const upload = new FormData();
+  upload.append("purpose", "voice_clone");
+  upload.append("file", input.audio, input.filename);
+
+  const uploaded = await authedFetch(`${BASE}/v1/files/upload`, {
+    method: "POST",
+    body: upload,
+  });
+  const sourceFileId = Number(uploaded?.file?.file_id);
+  if (!Number.isFinite(sourceFileId)) {
+    throw new Error("Minimax voice upload response has no file_id");
+  }
+
+  const cloned = await authedFetch(`${BASE}/v1/voice_clone`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      file_id: sourceFileId,
+      voice_id: input.voiceId,
+      need_noise_reduction: input.needNoiseReduction ?? false,
+      need_volume_normalization: input.needVolumeNormalization ?? true,
+    }),
+  });
+
+  const inputSensitive = cloned?.input_sensitive === true;
+  if (inputSensitive) {
+    const err = new Error("MINIMAX_INPUT_SENSITIVE");
+    (err as any).inputSensitiveType = cloned?.input_sensitive_type ?? null;
+    throw err;
+  }
+
+  return {
+    providerVoiceId: input.voiceId,
+    sourceFileId,
+    demoAudio: typeof cloned?.demo_audio === "string" && cloned.demo_audio ? cloned.demo_audio : null,
+    inputSensitive,
+    inputSensitiveType: typeof cloned?.input_sensitive_type === "number" ? cloned.input_sensitive_type : null,
+  };
 }
 
 async function submitTask(text: string, voiceProviderId: string, speed = 0.95): Promise<{ taskId: number; fileId: number }> {
@@ -148,7 +198,7 @@ export type SynthesizeResult = { audio: Buffer; durationMs: number };
 
 export async function synthesizeChapter(
   text: string,
-  voice: VoiceId | { providerVoiceId: string },
+  voice: VoiceSelection,
   opts?: { speed?: number },
 ): Promise<SynthesizeResult> {
   const providerVoiceId =

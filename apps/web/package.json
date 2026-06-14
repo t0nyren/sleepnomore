@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^2.4.3",
+    "capacitor-voice-recorder": "^7.0.6",
     "cos-nodejs-sdk-v5": "^2.15.4",
     "jose": "^5.10.0",
     "next": "^16.2.6",

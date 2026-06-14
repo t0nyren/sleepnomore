@@ -3,14 +3,15 @@ import { z } from "zod";
 import { newStoryId, saveStory, listRecent } from "@/lib/store/stories";
 import { runPipeline } from "@/lib/pipeline";
 import { allow } from "@/lib/rate-limit";
-import { PRESET_VOICES, type VoiceId } from "@/lib/adapters/minimax";
+import { PRESET_VOICES } from "@/lib/voices/catalog";
 import { getCurrentUser } from "@/lib/auth/session";
+import { resolveVoiceForUser } from "@/lib/store/voices";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 5; // route returns immediately; pipeline runs in background
 
-const VOICE_KEYS = Object.keys(PRESET_VOICES) as VoiceId[];
+const DEFAULT_VOICE = Object.keys(PRESET_VOICES)[0] ?? "v_jingying";
 
 const CreateStorySchema = z
   .object({
@@ -21,7 +22,7 @@ const CreateStorySchema = z
     subject: z.string().max(40).optional(),
     emphasis: z.string().max(200).optional(),
     durationMin: z.number().int().min(5).max(30),
-    voiceId: z.enum(VOICE_KEYS as [VoiceId, ...VoiceId[]]).default(VOICE_KEYS[0]),
+    voiceId: z.string().trim().min(1).max(256).default(DEFAULT_VOICE),
   })
   .refine(
     (v) => {
@@ -68,6 +69,12 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json(
       { error: "invalid_request", details: parsed.error.flatten() },
+      { status: 400 },
+    );
+  }
+  if (!resolveVoiceForUser(user.id, parsed.data.voiceId)) {
+    return NextResponse.json(
+      { error: "invalid_voice", message: "这个声音不可用，请重新选择。" },
       { status: 400 },
     );
   }
@@ -119,7 +126,7 @@ export async function POST(req: Request) {
   });
 
   // Fire-and-forget — pipeline runs in the background, the response is on the wire immediately.
-  runPipeline(id, params, parsed.data.voiceId).catch((err) => {
+  runPipeline(id, params, parsed.data.voiceId, user.id).catch((err) => {
     console.error(`[api] pipeline crashed for ${id}:`, err);
   });
 

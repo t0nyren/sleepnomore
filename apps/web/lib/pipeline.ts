@@ -11,9 +11,10 @@
  */
 
 import { generateStory, type Chapter as LLMChapter } from "./adapters/llm";
-import { synthesizeChapter, PRESET_VOICES, type VoiceId } from "./adapters/minimax";
+import { synthesizeChapter } from "./adapters/minimax";
 import { uploadAudio } from "./adapters/cos";
 import { updateStory, type StoredStory, type StoredChapter } from "./store/stories";
+import { resolveVoiceForUser } from "./store/voices";
 import type { StoryParams } from "./prompts/story";
 
 const TTS_PREVIEW_CHARS = parseInt(process.env.MIANAN_TTS_PREVIEW_CHARS ?? "100", 10) || 0;
@@ -21,14 +22,25 @@ const TTS_PREVIEW_CHARS = parseInt(process.env.MIANAN_TTS_PREVIEW_CHARS ?? "100"
 export async function runPipeline(
   storyId: string,
   params: StoryParams,
-  voiceId: VoiceId,
+  voiceId: string,
+  userId?: string,
 ): Promise<void> {
   const ttsJobs: Promise<void>[] = [];
+  const voice = resolveVoiceForUser(userId, voiceId);
+  if (!voice) {
+    updateStory(storyId, (s) => ({
+      ...s,
+      status: "failed",
+      error: "INVALID_VOICE",
+      progress: { stage: "failed", detail: "这个声音不可用，请重新选择。" },
+    }));
+    return;
+  }
 
   const synthAndStore = async (chapter: LLMChapter, idx: number): Promise<void> => {
     try {
       const ttsText = previewText(chapter.text, TTS_PREVIEW_CHARS);
-      const { audio, durationMs } = await synthesizeChapter(ttsText, voiceId);
+      const { audio, durationMs } = await synthesizeChapter(ttsText, voice);
       const key = `stories/${storyId}/ch-${idx}.mp3`;
       await uploadAudio(key, audio, "audio/mpeg");
       updateStory(storyId, (s) => {

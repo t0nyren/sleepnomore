@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { loadVoice, DEFAULT_VOICE } from "@/lib/voice-pref";
+import { loadVoice, loadVoiceLabel, DEFAULT_VOICE } from "@/lib/voice-pref";
 
 const VOICE_LABEL: Record<string, string> = {
   v_jingying: "磁性男声 (精英)",
@@ -34,11 +34,14 @@ export default function CreateCompanionPage() {
   const [style, setStyle] = useState("温柔抒情");
   const [duration, setDuration] = useState(15);
   const [voiceId, setVoiceId] = useState<string>(DEFAULT_VOICE);
+  const [voiceLabel, setVoiceLabel] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setVoiceId(loadVoice());
+    const saved = loadVoice();
+    setVoiceId(saved);
+    setVoiceLabel(loadVoiceLabel(saved));
   }, []);
 
   async function handleGenerate() {
@@ -169,7 +172,7 @@ export default function CreateCompanionPage() {
             boxShadow: "0 10px 20px rgba(157,107,255,0.30), inset 0 1px 0 rgba(255,255,255,0.5)",
           }} aria-hidden>{(VOICE_LABEL[voiceId] ?? "声").charAt(0)}</div>
           <div className="flex flex-1 flex-col">
-            <span className="display text-h3">{VOICE_LABEL[voiceId] ?? "选择声音"}</span>
+            <span className="display text-h3">{VOICE_LABEL[voiceId] ?? voiceLabel ?? "选择声音"}</span>
             <span className="text-caption muted">点击更换</span>
           </div>
           <span className="text-caption font-medium" style={{ color: "var(--color-accent-grape)" }}>更换 →</span>
@@ -185,7 +188,7 @@ export default function CreateCompanionPage() {
           {generating ? "准备中…" : "为今夜准备"}
         </button>
         <p className="text-caption muted">
-          {generating ? "正在准备故事 · 音频合成（约 2 分钟）" : `${style} · ${VOICE_LABEL[voiceId] ?? "默认声音"} · 约 ${duration} 分钟`}
+          {generating ? "正在准备故事 · 音频合成（约 2 分钟）" : `${style} · ${VOICE_LABEL[voiceId] ?? voiceLabel ?? "默认声音"} · 约 ${duration} 分钟`}
         </p>
       </div>
       {error ? <p className="text-caption" style={{ color: "var(--color-error)" }}>{error}</p> : null}

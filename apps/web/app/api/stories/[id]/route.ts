@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadStory, finalizeIfStale } from "@/lib/store/stories";
 import { signedUrl } from "@/lib/adapters/cos";
-import { PRESET_VOICES, type VoiceId } from "@/lib/adapters/minimax";
+import { voiceDisplayNameForUser } from "@/lib/store/voices";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
@@ -24,7 +24,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   const story = finalizeIfStale(loaded);
 
   // Hydrate audio URLs for ready chapters. Signed 30 minutes.
-  const voice = PRESET_VOICES[story.voiceId as VoiceId];
+  const voiceDisplayName = voiceDisplayNameForUser(story.userId, story.voiceId);
 
   const chapters = story.chapters.map((c) => ({
     idx: c.idx,
@@ -43,7 +43,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
     summary: story.summary,
     progress: story.progress,
     error: story.error,
-    voice: voice ? { id: story.voiceId, displayName: voice.displayName } : { id: story.voiceId },
+    voice: voiceDisplayName ? { id: story.voiceId, displayName: voiceDisplayName } : { id: story.voiceId },
     chapters,
     params: story.params,
     createdAt: story.createdAt,
