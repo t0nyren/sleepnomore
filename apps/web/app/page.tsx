@@ -37,6 +37,7 @@ export default async function TonightPage() {
           {user ? (
             <>
               <Link href="/create" className="cta-primary">为今夜准备一篇</Link>
+              <Link href="/presets" className="cta-ghost">听经典名著</Link>
               <Link href="/create/free" className="cta-ghost">自由描述</Link>
               <DownloadAppLink />
             </>
