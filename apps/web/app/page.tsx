@@ -12,6 +12,12 @@ const SUGGESTIONS = [
   { text: "海边灯塔守夜人写给远方爱人的一封信。", color: "#9DF3D7" },
 ];
 
+const FEATURED_PRESETS = [
+  { series: "sanguo", seriesName: "三国演义", chapter: 1, title: "桃园三结义", gradient: "linear-gradient(135deg,#FF5C7C,#FF9555)" },
+  { series: "hongloumeng", seriesName: "红楼梦", chapter: 1, title: "甄士隐梦幻识通灵", gradient: "linear-gradient(135deg,#FF9EC4,#9D6BFF)" },
+  { series: "xiyou", seriesName: "西游记", chapter: 1, title: "灵根育孕源流出", gradient: "linear-gradient(135deg,#FFD24D,#FF9555)" },
+];
+
 function todayLabel(): string {
   const d = new Date();
   const days = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
@@ -52,6 +58,39 @@ export default async function TonightPage() {
       </section>
 
       {user ? <RecentStories /> : null}
+
+      {user ? (
+        <section className="flex flex-col gap-5">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="display text-h2">今晚听经典</h2>
+            <Link href="/presets" className="text-caption font-medium" style={{ color: "var(--color-accent-grape)" }}>
+              全部 ~600 章 →
+            </Link>
+          </div>
+          <ul className="grid gap-4 sm:grid-cols-3">
+            {FEATURED_PRESETS.map((p) => (
+              <li key={`${p.series}:${p.chapter}`}>
+                <Link href={`/presets/${p.series}/${p.chapter}`} className="float-card flex flex-col gap-3">
+                  <div
+                    className="grid h-12 w-12 place-items-center rounded-full text-white text-base font-semibold"
+                    style={{
+                      background: p.gradient,
+                      boxShadow: "0 10px 20px rgba(157,107,255,0.30), inset 0 1px 0 rgba(255,255,255,0.5)",
+                    }}
+                    aria-hidden
+                  >
+                    {p.seriesName.charAt(0)}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-caption muted">{p.seriesName} · 第 {p.chapter} 章</span>
+                    <span className="display text-h3 leading-tight">{p.title}</span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="flex flex-col gap-5">
         <h2 className="display text-h2">今晚试试这些</h2>
