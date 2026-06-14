@@ -36,12 +36,16 @@ export type StoredStory = {
   createdAt: string;
   updatedAt: string;
   params: {
-    mode: "guided" | "free" | "companion";
+    mode: "guided" | "free" | "companion" | "remix";
     theme?: string;
     style?: string;
     prompt?: string;
-    subject?: string;        // companion mode: 主题
-    emphasis?: string;       // companion mode: 想感受的认知
+    subject?: string;             // companion mode: 主题
+    emphasis?: string;            // companion mode: 想感受的认知
+    sourceSeries?: string;        // remix mode: 系列 id
+    sourceChapter?: number;       // remix mode: 章节号
+    characterMap?: Record<string, string>;  // remix mode: 人物替换
+    plotDirection?: string;       // remix mode: 情节改编方向
     durationMin: number;
   };
   voiceId: string;             // preset key like "v_jingying"

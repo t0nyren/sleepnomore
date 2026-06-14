@@ -125,7 +125,19 @@ export type CompanionParams = {
   durationMin: number;
 };
 
-export type StoryParams = GuidedParams | FreeParams | CompanionParams;
+export type RemixParams = {
+  mode: "remix";
+  sourceSeriesName: string;     // 人类可读，如"三国演义"
+  sourceChapterNumber: number;
+  sourceChapterTitle: string;
+  sourceBody: string;           // 原文章节正文（由 API 路由从 preset store 加载后注入）
+  characterMap?: Record<string, string>;  // 原名 → 新名，如 { "贾宝玉": "小明" }
+  plotDirection?: string;       // 改编方向，如"林黛玉嫁给宝玉" / "整体气氛改为喜剧"
+  style?: string;
+  durationMin: number;
+};
+
+export type StoryParams = GuidedParams | FreeParams | CompanionParams | RemixParams;
 
 export function buildUserPrompt(params: StoryParams): string {
   const chapters = chapterCountFor(params.durationMin);
@@ -160,6 +172,42 @@ ${themeSection}
 
 # 语言风格
 ${params.style}
+
+请按系统提示要求创作并输出 JSON。`;
+  }
+
+  if (params.mode === "remix") {
+    const mapPairs = params.characterMap
+      ? Object.entries(params.characterMap).filter(([k, v]) => k.trim() && v.trim())
+      : [];
+    const mapSection = mapPairs.length > 0
+      ? `\n# 人物替换（必须严格执行）\n\n下面这些人物名出现时，全部替换为新名（保留称呼、字号、亲属关系等语境）：\n\n${mapPairs.map(([k, v]) => `- \`${k}\` → \`${v}\``).join("\n")}\n\n替换要彻底——所有称呼、对话、独白、第三人称叙述里出现的原名都要换；包括复合称呼如"宝玉哥哥"也跟着改。改名后人物身份、性格、关系不变。`
+      : "";
+    const directionSection = params.plotDirection?.trim()
+      ? `\n# 情节改编方向\n\n${params.plotDirection.trim()}\n\n按这个方向改写情节，但请保留原作的世界观与场景细节（地点、节令、器物、衣着、人物关系）。改写要自然，不能硬塞 "于是悲剧变成了喜剧" 这种生硬过渡——通过情节细节本身让方向发生。`
+      : "";
+
+    return `${targetSection}
+
+# 模式：改编经典名著
+
+源作品：《${params.sourceSeriesName}》第 ${params.sourceChapterNumber} 章「${params.sourceChapterTitle}」
+
+下面是原章正文，请基于它改写为新的助眠故事（不是简单复述，而是按下面的指令重新讲述）：
+
+---原文开始---
+${params.sourceBody}
+---原文结束---
+${mapSection}${directionSection}
+${params.style ? `\n# 语言风格\n${params.style}` : ""}
+
+# 改编原则（必须严格遵守）
+
+1. **整体仍是助眠故事**，沿用系统提示的所有助眠规则——节奏缓慢、视觉化、避免刺激、温柔结局、字数硬约束、纯简体中文、不要 meta 注释。
+2. **结构上跟原文有呼应**，但**不要逐句翻译**——你可以浓缩、扩写、调整段落顺序，让故事更适合睡前。
+3. **不要保留原文中的诗词、判词、骈文段落**——化成两三句白话散文带过即可。
+4. **关键场景的视觉细节要保留**——如桃园桃花、长安雨夜、太虚幻境、神武门外，这些是经典名著的灵魂画面，改人物名或情节都不能丢掉这些"画面感"。
+5. 若 plotDirection 与原情节冲突，**优先满足 plotDirection**；若 characterMap 与 plotDirection 同时存在，两者都要满足。
 
 请按系统提示要求创作并输出 JSON。`;
   }

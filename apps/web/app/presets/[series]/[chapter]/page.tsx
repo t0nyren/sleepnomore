@@ -177,7 +177,7 @@ export default function PresetChapterPage(
         </div>
       </article>
 
-      <div className="flex justify-between gap-3">
+      <div className="flex justify-between gap-3 flex-wrap">
         <button
           type="button"
           onClick={() => goToChapter(chapter - 1)}
@@ -186,6 +186,12 @@ export default function PresetChapterPage(
         >
           ← 上一章
         </button>
+        <Link
+          href={`/presets/${series}/${chapter}/remix`}
+          className="cta-primary"
+        >
+          改编这一章 ✦
+        </Link>
         <button
           type="button"
           onClick={() => goToChapter(chapter + 1)}

@@ -6,6 +6,8 @@ import { allow } from "@/lib/rate-limit";
 import { PRESET_VOICES } from "@/lib/voices/catalog";
 import { getCurrentUser } from "@/lib/auth/session";
 import { resolveVoiceForUser } from "@/lib/store/voices";
+import { loadChapter } from "@/lib/presets/store";
+import { getSeries } from "@/lib/presets/catalog";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,12 +17,16 @@ const DEFAULT_VOICE = Object.keys(PRESET_VOICES)[0] ?? "v_jingying";
 
 const CreateStorySchema = z
   .object({
-    mode: z.enum(["guided", "free", "companion"]),
+    mode: z.enum(["guided", "free", "companion", "remix"]),
     theme: z.string().max(20).optional(),
     style: z.string().max(20).optional(),
     prompt: z.string().max(500).optional(),
     subject: z.string().max(40).optional(),
     emphasis: z.string().max(200).optional(),
+    sourceSeries: z.string().max(40).optional(),
+    sourceChapter: z.number().int().min(1).optional(),
+    characterMap: z.record(z.string().max(40), z.string().max(40)).optional(),
+    plotDirection: z.string().max(300).optional(),
     durationMin: z.number().int().min(5).max(30),
     voiceId: z.string().trim().min(1).max(256).default(DEFAULT_VOICE),
   })
@@ -28,12 +34,18 @@ const CreateStorySchema = z
     (v) => {
       if (v.mode === "guided") return !!v.theme && !!v.style;
       if (v.mode === "free") return !!v.prompt && v.prompt.trim().length >= 8;
-      // companion
-      return !!v.subject && v.subject.trim().length >= 2;
+      if (v.mode === "companion") return !!v.subject && v.subject.trim().length >= 2;
+      // remix
+      if (!v.sourceSeries || typeof v.sourceChapter !== "number") return false;
+      const hasMap =
+        v.characterMap &&
+        Object.entries(v.characterMap).some(([k, val]) => k.trim() && val.trim());
+      const hasDirection = !!v.plotDirection && v.plotDirection.trim().length >= 4;
+      return !!(hasMap || hasDirection);
     },
     {
       message:
-        "guided needs theme+style; free needs prompt (>=8 chars); companion needs subject (>=2 chars)",
+        "guided needs theme+style; free needs prompt (>=8); companion needs subject; remix needs source + (characterMap or plotDirection)",
     },
   );
 
@@ -82,28 +94,59 @@ export async function POST(req: Request) {
   const id = newStoryId();
   const now = new Date().toISOString();
 
-  const params =
-    parsed.data.mode === "guided"
-      ? {
-          mode: "guided" as const,
-          theme: parsed.data.theme!,
-          style: parsed.data.style!,
-          durationMin: parsed.data.durationMin,
-        }
-      : parsed.data.mode === "free"
-      ? {
-          mode: "free" as const,
-          prompt: parsed.data.prompt!,
-          style: parsed.data.style,
-          durationMin: parsed.data.durationMin,
-        }
-      : {
-          mode: "companion" as const,
-          subject: parsed.data.subject!,
-          emphasis: parsed.data.emphasis,
-          style: parsed.data.style,
-          durationMin: parsed.data.durationMin,
-        };
+  let params: import("@/lib/prompts/story").StoryParams;
+  if (parsed.data.mode === "guided") {
+    params = {
+      mode: "guided",
+      theme: parsed.data.theme!,
+      style: parsed.data.style!,
+      durationMin: parsed.data.durationMin,
+    };
+  } else if (parsed.data.mode === "free") {
+    params = {
+      mode: "free",
+      prompt: parsed.data.prompt!,
+      style: parsed.data.style,
+      durationMin: parsed.data.durationMin,
+    };
+  } else if (parsed.data.mode === "companion") {
+    params = {
+      mode: "companion",
+      subject: parsed.data.subject!,
+      emphasis: parsed.data.emphasis,
+      style: parsed.data.style,
+      durationMin: parsed.data.durationMin,
+    };
+  } else {
+    // remix mode: load source chapter
+    const sourceSeries = parsed.data.sourceSeries!;
+    const sourceChapter = parsed.data.sourceChapter!;
+    const series = getSeries(sourceSeries);
+    if (!series) {
+      return NextResponse.json(
+        { error: "invalid_source", message: "找不到原作系列。" },
+        { status: 400 },
+      );
+    }
+    const chapter = loadChapter(sourceSeries, sourceChapter);
+    if (!chapter) {
+      return NextResponse.json(
+        { error: "invalid_source", message: "找不到原作章节。" },
+        { status: 400 },
+      );
+    }
+    params = {
+      mode: "remix",
+      sourceSeriesName: series.name,
+      sourceChapterNumber: sourceChapter,
+      sourceChapterTitle: chapter.title,
+      sourceBody: chapter.body,
+      characterMap: parsed.data.characterMap,
+      plotDirection: parsed.data.plotDirection,
+      style: parsed.data.style,
+      durationMin: parsed.data.durationMin,
+    };
+  }
 
   saveStory({
     id,
@@ -118,6 +161,10 @@ export async function POST(req: Request) {
       prompt: parsed.data.prompt,
       subject: parsed.data.subject,
       emphasis: parsed.data.emphasis,
+      sourceSeries: parsed.data.sourceSeries,
+      sourceChapter: parsed.data.sourceChapter,
+      characterMap: parsed.data.characterMap,
+      plotDirection: parsed.data.plotDirection,
       durationMin: parsed.data.durationMin,
     },
     voiceId: parsed.data.voiceId,
