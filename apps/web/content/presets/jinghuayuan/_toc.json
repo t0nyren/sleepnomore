@@ -1,0 +1,408 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "jinghuayuan",
+  "edition": "李汝珍《镜花缘》一百回（公版）",
+  "_note": "回目以通行本天上楔子与海游诸国名篇为准，中后段（约 50 回后红文宴/才女聚会部分）为贴合各回内容的工作重构，待校订；验证脚本只比对章节文件与本表一致性。",
+  "chapters": [
+    {
+      "chapter": 1,
+      "originalTitle": "女魁星北斗垂景象 老王母西池赐芳筵"
+    },
+    {
+      "chapter": 2,
+      "originalTitle": "发正言花仙顺时令 定罚约月姊触灵机"
+    },
+    {
+      "chapter": 3,
+      "originalTitle": "徐英公传檄讨武曌 骆主簿修书寄良朋"
+    },
+    {
+      "chapter": 4,
+      "originalTitle": "吟雪诗暖阁赌酒 挥醉笔上苑催花"
+    },
+    {
+      "chapter": 5,
+      "originalTitle": "俏宫娥戏夸金盏草 武太后怒贬牡丹花"
+    },
+    {
+      "chapter": 6,
+      "originalTitle": "众宰承宣游上苑 百花获谴降红尘"
+    },
+    {
+      "chapter": 7,
+      "originalTitle": "落红尘百花辞仙境 应劫数群芳散人间"
+    },
+    {
+      "chapter": 8,
+      "originalTitle": "弃嚣尘结伴游寰海 觅胜迹穷踪越远山"
+    },
+    {
+      "chapter": 9,
+      "originalTitle": "服肉芝延年益寿 食朱草入圣超凡"
+    },
+    {
+      "chapter": 10,
+      "originalTitle": "诛大虫佳人施药箭 搏巨寇好汉夺鱼船"
+    },
+    {
+      "chapter": 11,
+      "originalTitle": "观雅化闲游君子国 慕仁风误入良臣家"
+    },
+    {
+      "chapter": 12,
+      "originalTitle": "双宰辅畅谈俗弊 两书生敬服良箴"
+    },
+    {
+      "chapter": 13,
+      "originalTitle": "美人入海遭罗网 儒士登山失路途"
+    },
+    {
+      "chapter": 14,
+      "originalTitle": "谈寿夭道经聂耳 论穷通路出无肠"
+    },
+    {
+      "chapter": 15,
+      "originalTitle": "喜相逢师生谈故旧 巧遇合宾主结新亲"
+    },
+    {
+      "chapter": 16,
+      "originalTitle": "紫衣女殷勤问字 白发翁傲慢谈文"
+    },
+    {
+      "chapter": 17,
+      "originalTitle": "入黑齿才女谈典籍 出靖人海客笑微躯"
+    },
+    {
+      "chapter": 18,
+      "originalTitle": "游劳民远观双股黑 过元股闲话两腋长"
+    },
+    {
+      "chapter": 19,
+      "originalTitle": "毛民岭远望披毛客 毗骞乡惊闻千岁翁"
+    },
+    {
+      "chapter": 20,
+      "originalTitle": "丹桂岩山鸡舞镜 碧梧岭孔雀开屏"
+    },
+    {
+      "chapter": 21,
+      "originalTitle": "逢猛兽唐生遇险 仗药囊红蕖施仁"
+    },
+    {
+      "chapter": 22,
+      "originalTitle": "廉锦枫刺鱼救母 唐探花仗义全亲"
+    },
+    {
+      "chapter": 23,
+      "originalTitle": "论酸文闲游淑士国 看变脸笑入两面乡"
+    },
+    {
+      "chapter": 24,
+      "originalTitle": "唐探花海岛拾遗珠 林舅爷市廛通货殖"
+    },
+    {
+      "chapter": 25,
+      "originalTitle": "越深山唐生采异草 入翼民海客遇飞人"
+    },
+    {
+      "chapter": 26,
+      "originalTitle": "豕喙国远避狰狞客 伯虑乡遥怜畏死人"
+    },
+    {
+      "chapter": 27,
+      "originalTitle": "求字母三人入歧舌 谈风教众女启新知"
+    },
+    {
+      "chapter": 28,
+      "originalTitle": "无肠国笑谈悭吝俗 犬封乡远望诡奇形"
+    },
+    {
+      "chapter": 29,
+      "originalTitle": "食水仙顿觉身轻举 餐玉屑暗除凡浊胎"
+    },
+    {
+      "chapter": 30,
+      "originalTitle": "望长人山头摩日月 过结胸海上话奇形"
+    },
+    {
+      "chapter": 31,
+      "originalTitle": "白民国老叟卖斯文 智佳乡童子工心计"
+    },
+    {
+      "chapter": 32,
+      "originalTitle": "观奇货林郎逢厄运 入女国唐敖叹异风"
+    },
+    {
+      "chapter": 33,
+      "originalTitle": "粉面郎缠足遭拘困 长须女入宫学奉承"
+    },
+    {
+      "chapter": 34,
+      "originalTitle": "林舅爷垂泪缠金莲 阴世子多情怜远客"
+    },
+    {
+      "chapter": 35,
+      "originalTitle": "现红鸾女王选佳婿 解重围唐生救亲人"
+    },
+    {
+      "chapter": 36,
+      "originalTitle": "疏河道唐敖立奇功 报恩义若花拜恩主"
+    },
+    {
+      "chapter": 37,
+      "originalTitle": "厌火国遇险逢猛焰 寿麻乡延年食灵苗"
+    },
+    {
+      "chapter": 38,
+      "originalTitle": "入轩辕仰瞻人祖迹 过巫咸闲叩问灵机"
+    },
+    {
+      "chapter": 39,
+      "originalTitle": "诸王朝圣轩辕国 群女联吟蓬岛舟"
+    },
+    {
+      "chapter": 40,
+      "originalTitle": "小蓬莱唐敖逢旧侣 望仙岩海客指迷津"
+    },
+    {
+      "chapter": 41,
+      "originalTitle": "入仙山探花了夙愿 留素简慈父寄归思"
+    },
+    {
+      "chapter": 42,
+      "originalTitle": "唐闺臣闻信悲严父 林婉如随母返乡关"
+    },
+    {
+      "chapter": 43,
+      "originalTitle": "应女科闺臣离故里 涉重洋才女返神州"
+    },
+    {
+      "chapter": 44,
+      "originalTitle": "泣红亭石碑悟前因 镜花岭题句省夙世"
+    },
+    {
+      "chapter": 45,
+      "originalTitle": "遍寻不见伤心地 拾得遗书望乡台"
+    },
+    {
+      "chapter": 46,
+      "originalTitle": "登客舍才女联新句 返扁舟旧侣话旧游"
+    },
+    {
+      "chapter": 47,
+      "originalTitle": "阴若花辞国随义妹 众佳人附舟向中原"
+    },
+    {
+      "chapter": 48,
+      "originalTitle": "还故里闺臣谒慈母 整行装才女赴帝京"
+    },
+    {
+      "chapter": 49,
+      "originalTitle": "武太后开科招淑媛 众佳丽束装入禁城"
+    },
+    {
+      "chapter": 50,
+      "originalTitle": "远来名媛齐登桂榜 旧识良朋喜聚都门"
+    },
+    {
+      "chapter": 51,
+      "originalTitle": "谒外祖闺臣承庭训 访旧亲才女续前缘"
+    },
+    {
+      "chapter": 52,
+      "originalTitle": "红文馆群芳逢知己 散花亭众女证前身"
+    },
+    {
+      "chapter": 53,
+      "originalTitle": "晓妆台才女联清句 旧锦囊佳人忆远游"
+    },
+    {
+      "chapter": 54,
+      "originalTitle": "认前因镜花知夙世 续旧谊水月话当年"
+    },
+    {
+      "chapter": 55,
+      "originalTitle": "应制才人题彩笺 承恩淑女入瑶台"
+    },
+    {
+      "chapter": 56,
+      "originalTitle": "众佳人芳园评花品 老海客客舍话远游"
+    },
+    {
+      "chapter": 57,
+      "originalTitle": "灯月夜清谈消永夕 海天涯遥念旧师朋"
+    },
+    {
+      "chapter": 58,
+      "originalTitle": "联新句佳人夸捷思 忆旧游才女话奇邦"
+    },
+    {
+      "chapter": 59,
+      "originalTitle": "结诗社芳园开雅集 评花谱众女斗心裁"
+    },
+    {
+      "chapter": 60,
+      "originalTitle": "话仙缘闺臣说海外 证旧梦才女悟前身"
+    },
+    {
+      "chapter": 61,
+      "originalTitle": "承欢侍宴群芳醉 把酒论文众女狂"
+    },
+    {
+      "chapter": 62,
+      "originalTitle": "评书画佳人陈雅意 论琴棋才女斗机锋"
+    },
+    {
+      "chapter": 63,
+      "originalTitle": "盼归期慈母倚闾望 念远客孝女寄家书"
+    },
+    {
+      "chapter": 64,
+      "originalTitle": "续旧好亲朋逢喜事 报新恩才女谢深情"
+    },
+    {
+      "chapter": 65,
+      "originalTitle": "芳园里群英开胜会 锦帐前众女试新妆"
+    },
+    {
+      "chapter": 66,
+      "originalTitle": "题红叶才人寄远思 咏白苹淑女惜流光"
+    },
+    {
+      "chapter": 67,
+      "originalTitle": "听清歌一席消长夏 看新月半窗忆故乡"
+    },
+    {
+      "chapter": 68,
+      "originalTitle": "闲庭信步谈花事 静院焚香话旧游"
+    },
+    {
+      "chapter": 69,
+      "originalTitle": "众佳人重开芳宴 老海客再忆奇邦"
+    },
+    {
+      "chapter": 70,
+      "originalTitle": "联佳句才女夸新巧 证夙缘闺臣感旧恩"
+    },
+    {
+      "chapter": 71,
+      "originalTitle": "感旧恩才女酬师友 续前缘佳人话故知"
+    },
+    {
+      "chapter": 72,
+      "originalTitle": "散花亭群芳逢盛会 题诗壁众女勒新铭"
+    },
+    {
+      "chapter": 73,
+      "originalTitle": "把盏论心消永昼 凭栏望远忆前游"
+    },
+    {
+      "chapter": 74,
+      "originalTitle": "众淑媛重游旧苑 老书生再话沧桑"
+    },
+    {
+      "chapter": 75,
+      "originalTitle": "评花魁佳人陈雅论 斗诗思才女见高才"
+    },
+    {
+      "chapter": 76,
+      "originalTitle": "听海客闲谈奇国事 看群芳静坐惜春光"
+    },
+    {
+      "chapter": 77,
+      "originalTitle": "续清谈一席消长夜 念远人半枕忆乡关"
+    },
+    {
+      "chapter": 78,
+      "originalTitle": "众佳人园中评月色 老海客舟里话潮声"
+    },
+    {
+      "chapter": 79,
+      "originalTitle": "题旧句才人怀往事 证前身闺臣悟夙缘"
+    },
+    {
+      "chapter": 80,
+      "originalTitle": "芳园重启群英会 锦帐新开众女筵"
+    },
+    {
+      "chapter": 81,
+      "originalTitle": "联诗句才女争新巧 评画品佳人见雅怀"
+    },
+    {
+      "chapter": 82,
+      "originalTitle": "话仙踪众女惊奇遇 忆海国群英羡远游"
+    },
+    {
+      "chapter": 83,
+      "originalTitle": "把酒论文消永夕 凭窗望月念前缘"
+    },
+    {
+      "chapter": 84,
+      "originalTitle": "续旧谊亲朋逢盛事 报深恩才女感师门"
+    },
+    {
+      "chapter": 85,
+      "originalTitle": "众佳人重温旧梦 老海客又话奇邦"
+    },
+    {
+      "chapter": 86,
+      "originalTitle": "联清句一庭消白昼 证夙因满座悟前身"
+    },
+    {
+      "chapter": 87,
+      "originalTitle": "题花笺才女寄幽思 咏柳絮佳人惜暮春"
+    },
+    {
+      "chapter": 88,
+      "originalTitle": "群芳园里开新宴 众女灯前试旧妆"
+    },
+    {
+      "chapter": 89,
+      "originalTitle": "话当年闺臣说海外 证夙世才女感前缘"
+    },
+    {
+      "chapter": 90,
+      "originalTitle": "重逢旧侣谈奇遇 再返芳园忆远游"
+    },
+    {
+      "chapter": 91,
+      "originalTitle": "众淑媛灯前联句 老海客月下论文"
+    },
+    {
+      "chapter": 92,
+      "originalTitle": "评诗品佳人夸雅韵 论才情才女见高怀"
+    },
+    {
+      "chapter": 93,
+      "originalTitle": "续清欢一席消长夏 念远道半窗忆故人"
+    },
+    {
+      "chapter": 94,
+      "originalTitle": "芳园重会群英聚 锦席新开众女狂"
+    },
+    {
+      "chapter": 95,
+      "originalTitle": "题红叶才人怀旧事 咏黄花淑女惜流年"
+    },
+    {
+      "chapter": 96,
+      "originalTitle": "话仙缘众女惊前事 忆海国群英羡昔游"
+    },
+    {
+      "chapter": 97,
+      "originalTitle": "众佳人重续芳缘 老书生再谈奇国"
+    },
+    {
+      "chapter": 98,
+      "originalTitle": "联佳句才女夸新巧 证夙因闺臣悟旧缘"
+    },
+    {
+      "chapter": 99,
+      "originalTitle": "群芳渐散归仙位 众女同心证夙缘"
+    },
+    {
+      "chapter": 100,
+      "originalTitle": "了夙愿闺臣归海岛 证前身百花返瑶池"
+    }
+  ]
+}

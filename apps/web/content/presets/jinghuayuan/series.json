@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "jinghuayuan",
+  "title": "镜花缘",
+  "subtitle": "白话睡前版",
+  "description": "李汝珍《镜花缘》一百回，改写为白话睡前故事。唐敖、多九公、林之洋泛海远游，历君子国、大人国、女儿国、黑齿国等奇境，后百花仙子下凡为才女、武后开女科。每集一回独立，节奏舒缓，约十五分钟，奇风异俗远观成趣，留一个安静的落点。",
+  "totalChapters": 100,
+  "tags": ["古典小说", "奇幻游记", "镜花缘", "李汝珍"],
+  "language": "zh-CN",
+  "tocFile": "_toc.json"
+}
