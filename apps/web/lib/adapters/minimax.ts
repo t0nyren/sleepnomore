@@ -108,6 +108,28 @@ export async function cloneVoiceFromAudio(input: {
   };
 }
 
+export async function deleteClonedVoice(providerVoiceId: string): Promise<void> {
+  await authedFetch(`${BASE}/v1/delete_voice`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      voice_type: "voice_cloning",
+      voice_id: providerVoiceId,
+    }),
+  });
+}
+
+export async function deleteVoiceCloneSourceFile(fileId: number): Promise<void> {
+  await authedFetch(`${BASE}/v1/files/delete`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      file_id: fileId,
+      purpose: "voice_clone",
+    }),
+  });
+}
+
 async function submitTask(text: string, voiceProviderId: string, speed = 0.95): Promise<{ taskId: number; fileId: number }> {
   const body = await authedFetch(`${BASE}/v1/t2a_async_v2`, {
     method: "POST",
