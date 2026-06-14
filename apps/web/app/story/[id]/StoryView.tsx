@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useSleepInference } from "@/lib/sleep-inference";
 
 type Chapter = {
   idx: number;
@@ -32,6 +33,8 @@ export function StoryView({ storyId }: { storyId: string }) {
   const [size, setSize] = useState<number>(18);
   const [active, setActive] = useState(0);
   const [autoPlayRequest, setAutoPlayRequest] = useState<{ idx: number; token: number } | null>(null);
+  const [sleepPausedAt, setSleepPausedAt] = useState<number | null>(null);
+  const sleep = useSleepInference();
 
   useEffect(() => {
     let alive = true;
@@ -142,12 +145,26 @@ export function StoryView({ storyId }: { storyId: string }) {
 
   function autoAdvanceFrom(currentIdx: number) {
     if (!story || currentIdx >= story.chapters.length - 1) return;
+    // L3 simplified: if user is likely asleep (page hidden + no recent
+    // interaction), stop instead of auto-advancing.
+    if (sleep.shouldAutoStop()) {
+      setSleepPausedAt(currentIdx);
+      return;
+    }
     const nextIdx = currentIdx + 1;
     setActive(nextIdx);
     setAutoPlayRequest((request) => ({ idx: nextIdx, token: (request?.token ?? 0) + 1 }));
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  }
+
+  function resumeFromSleepPause() {
+    if (sleepPausedAt === null || !story) return;
+    const nextIdx = Math.min(sleepPausedAt + 1, story.chapters.length - 1);
+    setSleepPausedAt(null);
+    setActive(nextIdx);
+    setAutoPlayRequest((request) => ({ idx: nextIdx, token: (request?.token ?? 0) + 1 }));
   }
 
   return (
@@ -185,6 +202,47 @@ export function StoryView({ storyId }: { storyId: string }) {
         onEnded={() => autoAdvanceFrom(safeActive)}
         onAutoPlayHandled={() => setAutoPlayRequest(null)}
       />
+
+      {sleepPausedAt !== null ? (
+        <div className="float-card flex items-center justify-between gap-3 flex-wrap" style={{ borderColor: "rgba(157,107,255,0.4)" }}>
+          <div className="flex items-start gap-3">
+            <span className="inline-block h-2 w-2 mt-1.5 rounded-full" style={{ background: "#9D6BFF", boxShadow: "0 0 10px #9D6BFFcc" }} />
+            <div className="flex flex-col">
+              <span className="text-body font-medium">已为你轻轻停下</span>
+              <span className="text-caption muted">看上去你睡着了 · 不想停的话可以继续</span>
+            </div>
+          </div>
+          <button type="button" onClick={resumeFromSleepPause} className="pill" style={{ background: "linear-gradient(135deg,#9D6BFF,#4FB6FF)", color: "white", fontWeight: 600 }}>
+            继续 →
+          </button>
+        </div>
+      ) : null}
+
+      <div className="float-card flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <span className="text-caption uppercase tracking-[0.14em] font-semibold muted">睡了就停</span>
+          <button
+            type="button"
+            onClick={() => sleep.setEnabled(!sleep.enabled)}
+            role="switch"
+            aria-checked={sleep.enabled}
+            className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+            style={{
+              background: sleep.enabled
+                ? "linear-gradient(135deg,#9D6BFF,#4FB6FF)"
+                : "rgba(157,107,255,0.2)",
+            }}
+          >
+            <span
+              className="inline-block h-5 w-5 rounded-full bg-white shadow transition-transform"
+              style={{ transform: sleep.enabled ? "translateX(22px)" : "translateX(2px)" }}
+            />
+          </button>
+        </div>
+        <span className="text-caption muted max-w-[24ch] text-right">
+          锁屏后没有操作 → 章节结束时自动停止
+        </span>
+      </div>
 
       <div className="float-card flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2.5">
