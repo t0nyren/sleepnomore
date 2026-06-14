@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cloneVoiceFromAudio } from "@/lib/adapters/minimax";
 import { getCurrentUser } from "@/lib/auth/session";
+import { allowDaily } from "@/lib/rate-limit";
 import { createUserVoice, nextProviderVoiceId } from "@/lib/store/voices";
 
 export const runtime = "nodejs";
@@ -8,6 +9,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 90;
 
 const MAX_BYTES = 20 * 1024 * 1024;
+const CLONE_DAILY_LIMIT = 5;
 const CONSENT_TEXT = "我承诺录制内容为本人声音，并同意眠安使用此声音生成助眠音频";
 const ALLOWED_AUDIO = new Set([
   "audio/mpeg",
@@ -56,6 +58,17 @@ export async function POST(req: Request) {
   const displayNameRaw = String(form.get("displayName") ?? "").trim();
   const displayName = displayNameRaw ? displayNameRaw.slice(0, 24) : "我的声音";
   const providerVoiceId = nextProviderVoiceId(user.id);
+  const cloneLimit = allowDaily(`voice_clone:${user.id}`, CLONE_DAILY_LIMIT);
+  if (!cloneLimit.ok) {
+    return NextResponse.json(
+      {
+        error: "rate_limited",
+        retryAfterSec: cloneLimit.retryAfterSec,
+        message: "今天的声音制作次数已用完，请明天再试。",
+      },
+      { status: 429, headers: { "Retry-After": String(cloneLimit.retryAfterSec) } },
+    );
+  }
   const blob = new Blob([await audio.arrayBuffer()], { type });
   const filename = filenameForUpload(audio.name, type);
 
