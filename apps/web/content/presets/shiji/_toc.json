@@ -1,0 +1,357 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "shiji",
+  "edition": "中华书局点校本《史记》（一三〇篇选七十）",
+  "chapters": [
+    {
+      "chapter": 1,
+      "originalTitle": "五帝本纪",
+      "summary": "黄帝战蚩尤一笔带过，重尧舜的禅让与谦退——天下让于贤者"
+    },
+    {
+      "chapter": 2,
+      "originalTitle": "夏本纪",
+      "summary": "大禹治水十三年，三过家门而不入，疏导九川、定九州"
+    },
+    {
+      "chapter": 3,
+      "originalTitle": "殷本纪",
+      "summary": "成汤以宽得民、伊尹辅政放太甲——避纣王酷刑，只点到亡国之鉴"
+    },
+    {
+      "chapter": 4,
+      "originalTitle": "周本纪（上）",
+      "summary": "后稷教民稼穑、古公迁岐、文王演易访贤，武王伐纣只一句带过"
+    },
+    {
+      "chapter": 5,
+      "originalTitle": "周本纪（下）",
+      "summary": "周公吐哺辅成王、成康之治；幽王烽火戏诸侯，平王东迁"
+    },
+    {
+      "chapter": 6,
+      "originalTitle": "吴太伯世家",
+      "summary": "太伯、仲雍让国南奔，断发文身——让天下而无怨色"
+    },
+    {
+      "chapter": 7,
+      "originalTitle": "齐太公世家",
+      "summary": "姜太公垂钓渭滨、遇文王、封于齐，老而遇时"
+    },
+    {
+      "chapter": 8,
+      "originalTitle": "管晏列传",
+      "summary": "管仲鲍叔牙知交、九合诸侯；晏婴节俭、御者之妻劝夫"
+    },
+    {
+      "chapter": 9,
+      "originalTitle": "老子韩非列传",
+      "summary": "老子骑青牛出关、紫气东来、留五千言；庄周梦蝶、濠上观鱼"
+    },
+    {
+      "chapter": 10,
+      "originalTitle": "孟子荀卿列传",
+      "summary": "孟子游说仁义、荀子稷下论学——乱世里坚守一种学说"
+    },
+    {
+      "chapter": 11,
+      "originalTitle": "孔子世家（上）",
+      "summary": "孔子问礼于老子、夹谷会齐、去鲁周游列国"
+    },
+    {
+      "chapter": 12,
+      "originalTitle": "孔子世家（下）",
+      "summary": "陈蔡绝粮弦歌不辍、删述六经、获麟而叹"
+    },
+    {
+      "chapter": 13,
+      "originalTitle": "仲尼弟子列传",
+      "summary": "颜回居陋巷不改其乐、子路之勇、子贡之辩"
+    },
+    {
+      "chapter": 14,
+      "originalTitle": "伯夷列传",
+      "summary": "伯夷叔齐让国、叩马而谏、不食周粟、采薇首阳"
+    },
+    {
+      "chapter": 15,
+      "originalTitle": "孙子吴起列传",
+      "summary": "孙武吴宫教战训宫女、吴起为将与士卒同甘苦"
+    },
+    {
+      "chapter": 16,
+      "originalTitle": "伍子胥列传",
+      "summary": "伍子胥过昭关一夜白头、吹箫吴市——避鞭尸血腥，重隐忍"
+    },
+    {
+      "chapter": 17,
+      "originalTitle": "越王勾践世家（上）",
+      "summary": "勾践卧薪尝胆、十年生聚、文种七术复国"
+    },
+    {
+      "chapter": 18,
+      "originalTitle": "越王勾践世家（下）",
+      "summary": "范蠡功成身退、泛舟五湖、三致千金为陶朱公"
+    },
+    {
+      "chapter": 19,
+      "originalTitle": "商君列传",
+      "summary": "商鞅徙木立信、变法图强；车裂结局只一笔带过"
+    },
+    {
+      "chapter": 20,
+      "originalTitle": "苏秦列传",
+      "summary": "苏秦悬梁刺股、合纵六国、配六国相印"
+    },
+    {
+      "chapter": 21,
+      "originalTitle": "张仪列传",
+      "summary": "张仪连横破纵、舌在足矣——以三寸之舌游说天下"
+    },
+    {
+      "chapter": 22,
+      "originalTitle": "孟尝君列传",
+      "summary": "孟尝君养士三千、鸡鸣狗盗出函谷、冯谖弹铗市义"
+    },
+    {
+      "chapter": 23,
+      "originalTitle": "平原君虞卿列传",
+      "summary": "平原君门下毛遂自荐、脱颖而出、合纵于楚"
+    },
+    {
+      "chapter": 24,
+      "originalTitle": "魏公子列传",
+      "summary": "信陵君礼贤侯嬴、窃符救赵、急人之困"
+    },
+    {
+      "chapter": 25,
+      "originalTitle": "春申君列传",
+      "summary": "春申君以辩才存楚、招致宾客、富甲诸侯"
+    },
+    {
+      "chapter": 26,
+      "originalTitle": "范雎蔡泽列传",
+      "summary": "范雎远交近攻、一饭之德必偿；蔡泽劝其功成身退"
+    },
+    {
+      "chapter": 27,
+      "originalTitle": "廉颇蔺相如列传（上）",
+      "summary": "蔺相如完璧归赵、渑池会上不辱使命"
+    },
+    {
+      "chapter": 28,
+      "originalTitle": "廉颇蔺相如列传（下）",
+      "summary": "将相和、负荆请罪、刎颈之交；廉颇老矣尚能饭否"
+    },
+    {
+      "chapter": 29,
+      "originalTitle": "田单列传",
+      "summary": "田单守即墨、火牛阵复齐七十余城——战事一笔带过，重智略"
+    },
+    {
+      "chapter": 30,
+      "originalTitle": "乐毅列传",
+      "summary": "乐毅连下齐七十城、遭谗奔赵、报燕惠王书不忘故主"
+    },
+    {
+      "chapter": 31,
+      "originalTitle": "鲁仲连邹阳列传",
+      "summary": "鲁仲连义不帝秦、为人排难解纷而功成不受赏"
+    },
+    {
+      "chapter": 32,
+      "originalTitle": "屈原贾生列传",
+      "summary": "屈原行吟泽畔、众醉独醒、怀沙沉江；贾谊作鵩鸟赋自宽"
+    },
+    {
+      "chapter": 33,
+      "originalTitle": "吕不韦列传",
+      "summary": "吕不韦奇货可居、辅立子楚、一字千金——避后宫戏，重商眼与著书"
+    },
+    {
+      "chapter": 34,
+      "originalTitle": "刺客列传（上）",
+      "summary": "曹沫劫盟、专诸鱼肠剑、豫让漆身吞炭、聂政为知己——重义不重血"
+    },
+    {
+      "chapter": 35,
+      "originalTitle": "刺客列传（下）",
+      "summary": "荆轲易水送别、风萧萧兮、图穷匕见——刺秦只一笔带过"
+    },
+    {
+      "chapter": 36,
+      "originalTitle": "秦始皇本纪（上）",
+      "summary": "秦王扫六合、奋六世之余烈、一统天下、书同文车同轨"
+    },
+    {
+      "chapter": 37,
+      "originalTitle": "秦始皇本纪（下）",
+      "summary": "巡游天下、求仙问药、沙丘崩；焚书坑儒只点到为戒"
+    },
+    {
+      "chapter": 38,
+      "originalTitle": "李斯列传",
+      "summary": "李斯仓鼠之叹、谏逐客书、位极人臣终自悔——腰斩一笔带过"
+    },
+    {
+      "chapter": 39,
+      "originalTitle": "蒙恬列传",
+      "summary": "蒙恬北筑长城、却匈奴七百里、含冤而死只轻轻一笔"
+    },
+    {
+      "chapter": 40,
+      "originalTitle": "陈涉世家",
+      "summary": "陈涉佣耕叹鸿鹄之志、大泽乡揭竿、王侯将相宁有种乎"
+    },
+    {
+      "chapter": 41,
+      "originalTitle": "项羽本纪（一）",
+      "summary": "项羽学万人敌、江东起兵、破釜沉舟、巨鹿一战定诸侯"
+    },
+    {
+      "chapter": 42,
+      "originalTitle": "项羽本纪（二）",
+      "summary": "鸿门宴上剑拔弩张、范增举玦、樊哙闯帐、沛公脱身"
+    },
+    {
+      "chapter": 43,
+      "originalTitle": "项羽本纪（三）",
+      "summary": "垓下被围、四面楚歌、霸王别姬、乌江自刎——悲壮而静"
+    },
+    {
+      "chapter": 44,
+      "originalTitle": "高祖本纪（上）",
+      "summary": "刘邦布衣斩白蛇起沛、入关中、约法三章、还军霸上"
+    },
+    {
+      "chapter": 45,
+      "originalTitle": "高祖本纪（下）",
+      "summary": "楚汉相争、得天下、还乡击筑唱大风歌"
+    },
+    {
+      "chapter": 46,
+      "originalTitle": "留侯世家",
+      "summary": "张良圯下进履、为帝者师、运筹帷幄、功成愿弃人间事从赤松子游"
+    },
+    {
+      "chapter": 47,
+      "originalTitle": "萧相国世家",
+      "summary": "萧何月下追韩信、镇国家抚百姓、转漕给军、功为第一"
+    },
+    {
+      "chapter": 48,
+      "originalTitle": "淮阴侯列传（上）",
+      "summary": "韩信胯下之辱、登坛拜将、明修栈道暗度陈仓、背水一战"
+    },
+    {
+      "chapter": 49,
+      "originalTitle": "淮阴侯列传（下）",
+      "summary": "韩信功高震主、成也萧何败也萧何——结局只轻轻一笔"
+    },
+    {
+      "chapter": 50,
+      "originalTitle": "陈丞相世家",
+      "summary": "陈平六出奇计、宰相调和阴阳、不计一时毁誉"
+    },
+    {
+      "chapter": 51,
+      "originalTitle": "张耳陈余列传",
+      "summary": "张耳陈余刎颈之交，因利反目成仇——重在交情之变"
+    },
+    {
+      "chapter": 52,
+      "originalTitle": "郦生陆贾列传",
+      "summary": "郦食其高阳酒徒说齐；陆贾马上得之安能马上治之、著新语"
+    },
+    {
+      "chapter": 53,
+      "originalTitle": "季布栾布列传",
+      "summary": "季布一诺千金、得黄金百斤不如得季布一诺；栾布哭彭越"
+    },
+    {
+      "chapter": 54,
+      "originalTitle": "绛侯周勃世家",
+      "summary": "周勃厚重安刘；周亚夫细柳营治军、军中只闻将军令"
+    },
+    {
+      "chapter": 55,
+      "originalTitle": "孝文本纪",
+      "summary": "汉文帝仁俭恭让、亲尝汤药、除肉刑、霸陵薄葬——文景之治"
+    },
+    {
+      "chapter": 56,
+      "originalTitle": "刘敬叔孙通列传",
+      "summary": "刘敬建言都关中、和亲；叔孙通制朝仪、知时而变"
+    },
+    {
+      "chapter": 57,
+      "originalTitle": "李将军列传",
+      "summary": "李广飞将军、射石没镞、不教胡马度阴山、桃李不言下自成蹊"
+    },
+    {
+      "chapter": 58,
+      "originalTitle": "卫将军骠骑列传",
+      "summary": "卫青霍去病却匈奴；匈奴未灭何以家为——战阵一笔带过"
+    },
+    {
+      "chapter": 59,
+      "originalTitle": "扁鹊仓公列传",
+      "summary": "扁鹊见蔡桓公讳疾忌医、望色知病；仓公弟子缇萦上书救父"
+    },
+    {
+      "chapter": 60,
+      "originalTitle": "汲郑列传",
+      "summary": "汲黯直谏面折、卧治淮阳、不阿权贵——耿介之臣"
+    },
+    {
+      "chapter": 61,
+      "originalTitle": "张释之冯唐列传",
+      "summary": "张释之执法持平、法者天下公；冯唐易老、论将之道"
+    },
+    {
+      "chapter": 62,
+      "originalTitle": "循吏列传",
+      "summary": "孙叔敖三去相而不悔、子产治郑、公仪休拔葵去织——为政以德的循良之吏"
+    },
+    {
+      "chapter": 63,
+      "originalTitle": "万石张叔列传",
+      "summary": "石奋一门恭谨、过宫门必下车——以谦谨齐家传世"
+    },
+    {
+      "chapter": 64,
+      "originalTitle": "司马相如列传",
+      "summary": "司马相如琴挑卓文君、当垆卖酒、作子虚上林赋；赋文只两三句转述"
+    },
+    {
+      "chapter": 65,
+      "originalTitle": "滑稽列传",
+      "summary": "淳于髡一斗亦醉一石亦醉、优孟衣冠、优旃讽谏——以谐语进忠言"
+    },
+    {
+      "chapter": 66,
+      "originalTitle": "游侠列传",
+      "summary": "郭解少任侠而长折节为俭、急人之难——重然诺之义，斗狠一笔带过"
+    },
+    {
+      "chapter": 67,
+      "originalTitle": "货殖列传",
+      "summary": "范蠡子贡白圭经商之道、人弃我取人取我与——天下熙熙皆为利来"
+    },
+    {
+      "chapter": 68,
+      "originalTitle": "樊郦滕灌列传",
+      "summary": "樊哙鸿门带剑拥盾闯帐、夏侯婴数救于难——勇而有义"
+    },
+    {
+      "chapter": 69,
+      "originalTitle": "田叔列传",
+      "summary": "田叔为人刻廉自喜、守节不挠、不肯阿主——古之长者风"
+    },
+    {
+      "chapter": 70,
+      "originalTitle": "太史公自序",
+      "summary": "司马迁继父志、忍辱著书、究天人之际通古今之变——全书收束，压轴篇"
+    }
+  ]
+}
