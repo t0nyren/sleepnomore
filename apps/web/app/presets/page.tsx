@@ -37,6 +37,7 @@ export default function PresetsPage() {
   const [data, setData] = useState<{ series: Series[]; chapters: ChapterMeta[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [openSeries, setOpenSeries] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     let alive = true;
@@ -83,7 +84,22 @@ export default function PresetsPage() {
         <p className="muted">中国古典文学的白话改写，每章约 13 分钟，自动配音。</p>
       </header>
 
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-3">
+        <div className="glass-strong p-1">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value.slice(0, 40))}
+            placeholder="搜回目、章名（如：桃园 / 葬花 / 三结义）"
+            className="w-full rounded-[1.25rem] bg-transparent px-5 py-3 text-body focus:outline-none"
+          />
+        </div>
+        {query.trim().length >= 1 ? (
+          <SearchResults query={query.trim()} data={data} />
+        ) : null}
+      </section>
+
+      <section className="flex flex-col gap-4" style={{ display: query.trim().length >= 1 ? "none" : undefined }}>
         {data.series.map((s) => {
           const chapters = data.chapters.filter((c) => c.series === s.id);
           const isOpen = openSeries === s.id;
@@ -133,5 +149,48 @@ export default function PresetsPage() {
         })}
       </section>
     </div>
+  );
+}
+
+function SearchResults({ query, data }: { query: string; data: { series: Series[]; chapters: ChapterMeta[] } }) {
+  const q = query.toLowerCase();
+  const hits = data.chapters.filter((c) => {
+    const seriesName = data.series.find((s) => s.id === c.series)?.name ?? "";
+    return (
+      c.title.toLowerCase().includes(q) ||
+      (c.originalTitle ?? "").toLowerCase().includes(q) ||
+      (c.summary ?? "").toLowerCase().includes(q) ||
+      seriesName.toLowerCase().includes(q) ||
+      query.includes(seriesName) ||
+      seriesName.includes(query)
+    );
+  }).slice(0, 30);
+
+  if (hits.length === 0) {
+    return <p className="text-caption muted px-3">没有找到匹配的章节。</p>;
+  }
+
+  return (
+    <ul className="flex flex-col gap-2">
+      {hits.map((c) => {
+        const seriesName = data.series.find((s) => s.id === c.series)?.name ?? c.series;
+        return (
+          <li key={`${c.series}:${c.chapter}`}>
+            <Link
+              href={`/presets/${c.series}/${c.chapter}`}
+              className="float-card flex items-center gap-3"
+            >
+              <span className="text-caption muted shrink-0 min-w-[5em]">{seriesName}</span>
+              <span className="text-caption muted shrink-0 min-w-[3em]">{String(c.chapter).padStart(3, "0")}</span>
+              <span className="flex-1 text-body">{c.title}</span>
+              <span className="text-caption muted">{c.estimatedMinutes} 分钟</span>
+            </Link>
+          </li>
+        );
+      })}
+      {hits.length === 30 ? (
+        <li className="text-caption muted px-3">只显示前 30 条匹配 · 输入更具体一点缩小范围</li>
+      ) : null}
+    </ul>
   );
 }
