@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "seriesId": "liaozhai",
+  "title": "聊斋志异",
+  "subtitle": "白话睡前版",
+  "description": "蒲松龄《聊斋志异》四百余篇中精选八十篇，改写为文白参半的白话睡前故事。狐仙花妖、书生幽梦、因果异事，以夜读古宅、半梦半醒为整本基调，每集约 12–15 分钟，节奏舒缓含蓄。",
+  "totalChapters": 80,
+  "tags": ["古典名著", "明清小说", "志怪", "文言短篇"],
+  "language": "zh-CN",
+  "tocFile": "_toc.json"
+}
