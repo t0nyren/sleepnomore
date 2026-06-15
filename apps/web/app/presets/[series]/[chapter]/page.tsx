@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { loadVoice, DEFAULT_VOICE } from "@/lib/voice-pref";
 import { useSleepInference } from "@/lib/sleep-inference";
 import { recordPresetView } from "@/lib/preset-history";
+import { WakeRampControl, useWakeRamp } from "@/lib/wake-ramp";
 
 type Chapter = {
   series: string;
@@ -234,6 +235,7 @@ function PresetPlayer({
   const [current, setCurrent] = useState(0);
   const [seeking, setSeeking] = useState(false);
   const sleep = useSleepInference();
+  const wakeRamp = useWakeRamp();
   const [sleepPaused, setSleepPaused] = useState(false);
 
   useEffect(() => {
@@ -246,6 +248,12 @@ function PresetPlayer({
     audioRef.current.load();
   }, [audio?.url]);
 
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.volume = wakeRamp.volume;
+  }, [wakeRamp.volume, audio?.url]);
+
   function togglePlay() {
     const a = audioRef.current;
     if (!a) return;
@@ -255,24 +263,27 @@ function PresetPlayer({
 
   if (!audio) {
     return (
-      <div className="float-card flex items-center gap-4 flex-wrap">
-        <div className="flex flex-1 flex-col">
-          <span className="text-body font-medium">声音：{voiceLabel}</span>
-          <span className="text-caption muted">
-            {synth === "loading"
-              ? "音频合成中…首次准备约 30–60 秒"
-              : "音频还没准备 · 第一次会合成 30–60 秒，之后所有人都能复用"}
-          </span>
-          {synthError ? <span className="text-caption" style={{ color: "var(--color-error)" }}>{synthError}</span> : null}
+      <div className="flex flex-col gap-3">
+        <div className="float-card flex items-center gap-4 flex-wrap">
+          <div className="flex flex-1 flex-col">
+            <span className="text-body font-medium">声音：{voiceLabel}</span>
+            <span className="text-caption muted">
+              {synth === "loading"
+                ? "音频合成中…首次准备约 30–60 秒"
+                : "音频还没准备 · 第一次会合成 30–60 秒，之后所有人都能复用"}
+            </span>
+            {synthError ? <span className="text-caption" style={{ color: "var(--color-error)" }}>{synthError}</span> : null}
+          </div>
+          <button
+            type="button"
+            onClick={onSynth}
+            disabled={synth === "loading"}
+            className="cta-primary disabled:opacity-50"
+          >
+            {synth === "loading" ? "合成中…" : "准备音频"}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onSynth}
-          disabled={synth === "loading"}
-          className="cta-primary disabled:opacity-50"
-        >
-          {synth === "loading" ? "合成中…" : "准备音频"}
-        </button>
+        <WakeRampControl wakeRamp={wakeRamp} />
       </div>
     );
   }
@@ -302,6 +313,7 @@ function PresetPlayer({
             <span className="display text-h3 leading-tight">{voiceLabel}</span>
             <span className="text-caption muted">
               {duration > 0 ? `${fmtTime(current)} / ${fmtTime(duration)}` : "准备播放…"}
+              {wakeRamp.active ? ` · ${wakeRamp.label}` : ""}
             </span>
           </div>
         </div>
@@ -337,7 +349,7 @@ function PresetPlayer({
           onEnded={async () => {
             setPlaying(false);
             setCurrent(0);
-            if (await sleep.shouldAutoStop()) {
+            if (!wakeRamp.active && await sleep.shouldAutoStop()) {
               setSleepPaused(true);
               return;
             }
@@ -345,6 +357,7 @@ function PresetPlayer({
           }}
         />
       </div>
+      <WakeRampControl wakeRamp={wakeRamp} />
       {sleepPaused ? (
         <div className="float-card flex items-center justify-between gap-3 flex-wrap" style={{ borderColor: "rgba(157,107,255,0.4)" }}>
           <span className="text-body">已为你轻轻停下 · 不想停可以继续</span>

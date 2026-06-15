@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useSleepInference } from "@/lib/sleep-inference";
+import { WakeRampControl, useWakeRamp } from "@/lib/wake-ramp";
+import type { WakeRampState } from "@/lib/wake-ramp";
 
 type Chapter = {
   idx: number;
@@ -35,6 +37,7 @@ export function StoryView({ storyId }: { storyId: string }) {
   const [autoPlayRequest, setAutoPlayRequest] = useState<{ idx: number; token: number } | null>(null);
   const [sleepPausedAt, setSleepPausedAt] = useState<number | null>(null);
   const sleep = useSleepInference();
+  const wakeRamp = useWakeRamp();
 
   useEffect(() => {
     let alive = true;
@@ -147,7 +150,7 @@ export function StoryView({ storyId }: { storyId: string }) {
     if (!story || currentIdx >= story.chapters.length - 1) return;
     // L3 simplified: if user is likely asleep (page hidden + no recent
     // interaction), stop instead of auto-advancing.
-    if (await sleep.shouldAutoStop()) {
+    if (!wakeRamp.active && await sleep.shouldAutoStop()) {
       setSleepPausedAt(currentIdx);
       return;
     }
@@ -199,6 +202,7 @@ export function StoryView({ storyId }: { storyId: string }) {
         chapterNumber={safeActive + 1}
         storyId={story.id}
         autoPlayToken={autoPlayRequest?.idx === safeActive ? autoPlayRequest.token : 0}
+        wakeRamp={wakeRamp}
         onEnded={() => { void autoAdvanceFrom(safeActive); }}
         onAutoPlayHandled={() => setAutoPlayRequest(null)}
       />
@@ -243,6 +247,8 @@ export function StoryView({ storyId }: { storyId: string }) {
           锁屏后没有操作 → 章节结束时自动停止
         </span>
       </div>
+
+      <WakeRampControl wakeRamp={wakeRamp} />
 
       <div className="float-card flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2.5">
@@ -358,6 +364,7 @@ function AudioPlayer({
   chapterNumber,
   storyId,
   autoPlayToken,
+  wakeRamp,
   onEnded,
   onAutoPlayHandled,
 }: {
@@ -365,6 +372,7 @@ function AudioPlayer({
   chapterNumber: number;
   storyId: string;
   autoPlayToken: number;
+  wakeRamp: WakeRampState;
   onEnded: () => void;
   onAutoPlayHandled: () => void;
 }) {
@@ -391,6 +399,7 @@ function AudioPlayer({
       src={chapter.audioUrl}
       chapterNumber={chapterNumber}
       autoPlayToken={autoPlayToken}
+      wakeRamp={wakeRamp}
       onEnded={onEnded}
       onAutoPlayHandled={onAutoPlayHandled}
     />
@@ -402,6 +411,7 @@ function ActiveAudioPlayer({
   src,
   chapterNumber,
   autoPlayToken,
+  wakeRamp,
   onEnded,
   onAutoPlayHandled,
 }: {
@@ -409,6 +419,7 @@ function ActiveAudioPlayer({
   src: string;
   chapterNumber: number;
   autoPlayToken: number;
+  wakeRamp: WakeRampState;
   onEnded: () => void;
   onAutoPlayHandled: () => void;
 }) {
@@ -448,6 +459,12 @@ function ActiveAudioPlayer({
         onAutoPlayHandled();
       });
   }, [autoPlayToken, audioKey, onAutoPlayHandled]);
+
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.volume = wakeRamp.volume;
+  }, [wakeRamp.volume, audioKey]);
 
   function togglePlay() {
     const a = audioRef.current;
@@ -494,6 +511,7 @@ function ActiveAudioPlayer({
           <span className="display text-h3 leading-tight">第 {chapterNumber} 章</span>
           <span className="text-caption muted">
             {loaded ? `${fmtTime(current)} / ${fmtTime(duration)}` : "准备播放…"}
+            {wakeRamp.active ? ` · ${wakeRamp.label}` : ""}
           </span>
         </div>
       </div>
