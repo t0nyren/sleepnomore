@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { SourceSwitch } from "../_components/SourceSwitch";
 import { loadVoice, loadVoiceLabel, DEFAULT_VOICE } from "@/lib/voice-pref";
 
 const THEMES = [
@@ -17,6 +18,12 @@ const THEMES = [
 ];
 const STYLES = ["温柔抒情", "流畅生动", "活泼诙谐", "引经据典", "克制冷静"];
 const DURATIONS = [10, 15, 20, 25];
+const MOOD_TAGS = [
+  { label: "想被安抚", theme: "治愈", style: "温柔抒情", duration: 15, color: "#9DF3D7" },
+  { label: "脑子太吵", theme: "童话", style: "克制冷静", duration: 10, color: "#A2E4FF" },
+  { label: "想离现实远一点", theme: "仙侠", style: "流畅生动", duration: 20, color: "#9D6BFF" },
+  { label: "想听一点人间烟火", theme: "都市", style: "温柔抒情", duration: 15, color: "#FF9555" },
+];
 
 const VOICE_LABEL: Record<string, string> = {
   v_jingying: "磁性男声 (精英)",
@@ -75,9 +82,30 @@ export default function CreateGuidedPage() {
   return (
     <div className="flex flex-col gap-12 pt-4 sm:pt-8">
       <header className="flex flex-col gap-4">
+        <SourceSwitch current="create" />
         <ModeTabs current="guided" />
         <h1 className="display text-h1 max-w-[22ch]">告诉我今夜想听的故事的样子。</h1>
       </header>
+
+      <Field label="今晚状态">
+        <div className="flex flex-wrap gap-2.5">
+          {MOOD_TAGS.map((tag) => (
+            <button
+              key={tag.label}
+              type="button"
+              className="pill"
+              onClick={() => {
+                setTheme(tag.theme);
+                setStyle(tag.style);
+                setDuration(tag.duration);
+              }}
+            >
+              <span className="inline-block h-2 w-2 rounded-full" style={{ background: tag.color, boxShadow: `0 0 10px ${tag.color}cc` }} />
+              {tag.label}
+            </button>
+          ))}
+        </div>
+      </Field>
 
       <Field label="主题">
         <div className="flex flex-wrap gap-2.5">

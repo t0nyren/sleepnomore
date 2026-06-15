@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { SourceSwitch } from "../../../../_components/SourceSwitch";
 import { loadVoice, DEFAULT_VOICE } from "@/lib/voice-pref";
 
 type ChapterMeta = {
@@ -139,6 +140,7 @@ export default function RemixPage(
   return (
     <div className="flex flex-col gap-10 pt-4 sm:pt-8">
       <header className="flex flex-col gap-3">
+        <SourceSwitch current="remix" />
         <Link href={`/presets/${series}/${chapter}`} className="text-caption muted self-start">
           ← {seriesMeta?.name ?? series} · 第 {chapter} 章 · 回到原章
         </Link>
