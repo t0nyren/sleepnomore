@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { RecentStories } from "./_components/RecentStories";
 import { DownloadAppLink } from "./_components/DownloadAppLink";
+import { ContinueReading } from "./_components/ContinueReading";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -57,6 +58,7 @@ export default async function TonightPage() {
         </div>
       </section>
 
+      {user ? <ContinueReading /> : null}
       {user ? <RecentStories /> : null}
 
       {user ? (
