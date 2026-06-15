@@ -5,6 +5,7 @@ import { use, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loadVoice, DEFAULT_VOICE } from "@/lib/voice-pref";
 import { useSleepInference } from "@/lib/sleep-inference";
+import { recordPresetView } from "@/lib/preset-history";
 
 type Chapter = {
   series: string;
@@ -77,6 +78,13 @@ export default function PresetChapterPage(
         const sd = await seriesRes.json();
         const meta = sd.series?.find((s: SeriesMeta) => s.id === series);
         if (meta) setSeriesMeta(meta);
+        // Track last-read preset for the home page "Continue reading" card.
+        recordPresetView({
+          series,
+          seriesName: meta?.name ?? series,
+          chapter,
+          title: d?.chapter?.title ?? "",
+        });
       } catch (e: any) {
         if (alive) setError(e.message);
       }
@@ -326,10 +334,10 @@ function PresetPlayer({
           onTimeUpdate={(e) => { if (!seeking) setCurrent(e.currentTarget.currentTime); }}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
-          onEnded={() => {
+          onEnded={async () => {
             setPlaying(false);
             setCurrent(0);
-            if (sleep.shouldAutoStop()) {
+            if (await sleep.shouldAutoStop()) {
               setSleepPaused(true);
               return;
             }

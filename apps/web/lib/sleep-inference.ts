@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { getNativeSleepWindow, requestNativeSleepPermissionOnce } from "@/lib/sleep-health";
 
 const PREF_KEY = "mianan.smart_stop_enabled";
 const HIDDEN_THRESHOLD_MS = 60 * 1000;        // page hidden for at least 1 minute
@@ -9,7 +10,7 @@ const INACTIVITY_THRESHOLD_MS = 3 * 60 * 1000; // no touch / click / key in last
 export type SleepInferenceState = {
   enabled: boolean;
   setEnabled: (next: boolean) => void;
-  shouldAutoStop: () => boolean;
+  shouldAutoStop: () => Promise<boolean>;
 };
 
 /**
@@ -41,6 +42,11 @@ export function useSleepInference(): SleepInferenceState {
       // ignore (e.g. private mode)
     }
   }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+    void requestNativeSleepPermissionOnce();
+  }, [enabled]);
 
   const setEnabled = useCallback((next: boolean) => {
     setEnabledState(next);
@@ -86,8 +92,10 @@ export function useSleepInference(): SleepInferenceState {
     };
   }, []);
 
-  const shouldAutoStop = useCallback((): boolean => {
+  const shouldAutoStop = useCallback(async (): Promise<boolean> => {
     if (!enabled) return false;
+    const nativeSleep = await getNativeSleepWindow();
+    if (nativeSleep?.isSleeping) return true;
     const now = Date.now();
     const hidden = hiddenSince.current;
     if (hidden === null) return false;

@@ -143,11 +143,11 @@ export function StoryView({ storyId }: { storyId: string }) {
     }
   }
 
-  function autoAdvanceFrom(currentIdx: number) {
+  async function autoAdvanceFrom(currentIdx: number) {
     if (!story || currentIdx >= story.chapters.length - 1) return;
     // L3 simplified: if user is likely asleep (page hidden + no recent
     // interaction), stop instead of auto-advancing.
-    if (sleep.shouldAutoStop()) {
+    if (await sleep.shouldAutoStop()) {
       setSleepPausedAt(currentIdx);
       return;
     }
@@ -199,7 +199,7 @@ export function StoryView({ storyId }: { storyId: string }) {
         chapterNumber={safeActive + 1}
         storyId={story.id}
         autoPlayToken={autoPlayRequest?.idx === safeActive ? autoPlayRequest.token : 0}
-        onEnded={() => autoAdvanceFrom(safeActive)}
+        onEnded={() => { void autoAdvanceFrom(safeActive); }}
         onAutoPlayHandled={() => setAutoPlayRequest(null)}
       />
 
