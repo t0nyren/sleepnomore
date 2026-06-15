@@ -42,18 +42,34 @@ export default function VoicesPage() {
   const [recordingSec, setRecordingSec] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [cloneError, setCloneError] = useState<string | null>(null);
+  // null = still detecting; true = native recorder available; false = web only (file upload)
+  const [recordSupported, setRecordSupported] = useState<boolean | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<number | null>(null);
 
   useEffect(() => {
     setSelected(loadVoice());
     refreshVoices();
+    detectRecordSupport();
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
       if (clip?.url) URL.revokeObjectURL(clip.url);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Capacitor + voice-recorder plugin probe. Returns true only if running inside
+  // a native iOS/Android binary that has the plugin compiled in. Web browsers
+  // and older App binaries (no plugin) → fallback to file upload.
+  async function detectRecordSupport() {
+    try {
+      const mod = await import("capacitor-voice-recorder");
+      const result = await mod.VoiceRecorder.canDeviceVoiceRecord();
+      setRecordSupported(!!result?.value);
+    } catch {
+      setRecordSupported(false);
+    }
+  }
 
   async function refreshVoices() {
     try {
@@ -342,25 +358,33 @@ export default function VoicesPage() {
           </label>
 
           <div className="flex flex-wrap gap-3">
-            {recording ? (
-              <button type="button" className="cta-primary" onClick={() => stopRecording()}>
-                停止录音 · {recordingSec}s
-              </button>
-            ) : (
-              <button type="button" className="cta-primary disabled:opacity-50" disabled={!consented || uploading} onClick={startRecording}>
-                开始录音
-              </button>
-            )}
-            <label className="cta-ghost cursor-pointer">
-              上传音频
+            {recordSupported ? (
+              recording ? (
+                <button type="button" className="cta-primary" onClick={() => stopRecording()}>
+                  停止录音 · {recordingSec}s
+                </button>
+              ) : (
+                <button type="button" className="cta-primary disabled:opacity-50" disabled={!consented || uploading} onClick={startRecording}>
+                  开始录音
+                </button>
+              )
+            ) : null}
+            <label className={`${recordSupported ? "cta-ghost" : "cta-primary"} cursor-pointer disabled:opacity-50`} aria-disabled={!consented || uploading}>
+              {recordSupported ? "上传音频" : "上传音频文件"}
               <input
                 type="file"
                 accept=".mp3,.m4a,.wav,audio/mpeg,audio/mp4,audio/wav"
                 className="hidden"
+                disabled={!consented || uploading}
                 onChange={(e) => onFilePicked(e.currentTarget.files?.[0] ?? null)}
               />
             </label>
           </div>
+          {recordSupported === false ? (
+            <p className="text-caption muted">
+              当前环境不支持在 App 内直接录音，请上传一段 30-60 秒的 mp3 / m4a / wav 音频文件。
+            </p>
+          ) : null}
 
           {clip ? (
             <div className="glass-strong flex flex-col gap-3 rounded-[22px] p-4">
