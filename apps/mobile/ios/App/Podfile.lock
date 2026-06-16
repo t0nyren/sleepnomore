@@ -1,0 +1,28 @@
+PODS:
+  - Capacitor (8.3.4):
+    - CapacitorCordova
+  - CapacitorCordova (8.3.4)
+  - CapacitorVoiceRecorder (7.0.6):
+    - Capacitor
+
+DEPENDENCIES:
+  - "Capacitor (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - CapacitorVoiceRecorder (from `../../node_modules/capacitor-voice-recorder`)
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorCordova:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorVoiceRecorder:
+    :path: "../../node_modules/capacitor-voice-recorder"
+
+SPEC CHECKSUMS:
+  Capacitor: d13cad5fa09155679672808cc4ca9fbc2997e1b4
+  CapacitorCordova: c07921bdcfec6f691bae22274446b4d606ebf6a4
+  CapacitorVoiceRecorder: 9158861be982f32d411769723a4d813d6ce46135
+
+PODFILE CHECKSUM: 59e476aa5097adc1ea5647f337286dae7218362f
+
+COCOAPODS: 1.16.2
