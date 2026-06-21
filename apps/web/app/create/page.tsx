@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SourceSwitch } from "../_components/SourceSwitch";
 import { loadVoice, loadVoiceLabel, DEFAULT_VOICE } from "@/lib/voice-pref";
 
 const THEMES = [
@@ -82,7 +81,6 @@ export default function CreateGuidedPage() {
   return (
     <div className="flex flex-col gap-12 pt-4 sm:pt-8">
       <header className="flex flex-col gap-4">
-        <SourceSwitch current="create" />
         <ModeTabs current="guided" />
         <h1 className="display text-h1 max-w-[22ch]">告诉我今夜想听的故事的样子。</h1>
       </header>

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SourceSwitch } from "../../_components/SourceSwitch";
 import { loadVoice, loadVoiceLabel, DEFAULT_VOICE } from "@/lib/voice-pref";
 
 const VOICE_LABEL: Record<string, string> = {
@@ -74,7 +73,6 @@ export default function CreateCompanionPage() {
   return (
     <div className="flex flex-col gap-12 pt-4 sm:pt-8">
       <header className="flex flex-col gap-4">
-        <SourceSwitch current="create" />
         <ModeTabs current="companion" />
         <h1 className="display text-h1 max-w-[22ch]">让今夜的故事陪你与一个主题相伴。</h1>
         <p className="text-body muted max-w-[34ch]">

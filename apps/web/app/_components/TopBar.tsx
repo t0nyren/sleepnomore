@@ -10,12 +10,7 @@ export async function TopBar() {
         <span className="display text-[1.25rem] tracking-tight">眠安</span>
       </Link>
       <nav className="flex items-center gap-1.5 text-caption">
-        {user ? (
-          <>
-            <Link href="/" className="pill" data-selected={false}>我的故事</Link>
-            <Link href="/account" className="pill" data-selected={false}>用户中心</Link>
-          </>
-        ) : (
+        {user ? null : (
           <Link href="/login" className="pill" data-selected={false}>登录</Link>
         )}
       </nav>

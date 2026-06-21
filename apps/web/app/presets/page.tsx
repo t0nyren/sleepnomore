@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { SourceSwitch } from "../_components/SourceSwitch";
 
 type Series = {
   id: string;
@@ -78,7 +77,6 @@ export default function PresetsPage() {
   return (
     <div className="flex flex-col gap-10 pt-4 sm:pt-8">
       <header className="flex flex-col gap-3">
-        <SourceSwitch current="presets" />
         <span className="chip-bright" style={{ background: "linear-gradient(135deg,#9D6BFF,#4FB6FF)" }}>
           经典名著 · {data.chapters.length} 章
         </span>
