@@ -64,6 +64,13 @@ function audioCacheKey(series: string, chapter: number, providerVoiceId: string)
   return `presets/${series}/ch-${ch}/${safeVoice}.mp3`;
 }
 
+function userAudioCacheKey(userId: string, series: string, chapter: number, customVoiceId: string): string {
+  const ch = String(chapter).padStart(3, "0");
+  const safeUser = userId.replace(/[^A-Za-z0-9_-]/g, "_");
+  const safeVoice = customVoiceId.replace(/[^A-Za-z0-9_-]/g, "_");
+  return `presets/users/${safeUser}/${series}/ch-${ch}/${safeVoice}.mp3`;
+}
+
 export type PresetChapterBody = {
   series: string;
   chapter: number;
@@ -114,6 +121,19 @@ export function getCachedAudio(
   return { url: signedUrl(rec.key), durationMs: rec.durationMs, key: rec.key };
 }
 
+export function getCachedUserAudio(
+  userId: string,
+  series: string,
+  chapter: number,
+  customVoiceId: string,
+): { url: string; durationMs: number; key: string } | null {
+  const idx = loadIndex();
+  const k = `user:${userId}:${series}:${chapter}:${customVoiceId}`;
+  const rec = idx.records[k];
+  if (!rec) return null;
+  return { url: signedUrl(rec.key), durationMs: rec.durationMs, key: rec.key };
+}
+
 /**
  * Get cached or synthesize + upload + cache. This blocks on TTS so callers
  * should be prepared for ~30s latency on cache miss.
@@ -142,6 +162,34 @@ export async function getOrCreateAudio(
   // Write index after successful upload
   const idx = loadIndex();
   idx.records[`${series}:${chapter}:${providerVoiceId}`] = {
+    key,
+    durationMs,
+    createdAt: new Date().toISOString(),
+  };
+  saveIndex(idx);
+
+  return { url: signedUrl(key), durationMs, key, cacheHit: false };
+}
+
+export async function getOrCreateUserAudio(
+  userId: string,
+  series: string,
+  chapter: number,
+  customVoiceId: string,
+  providerVoiceId: string,
+): Promise<{ url: string; durationMs: number; key: string; cacheHit: boolean }> {
+  const cached = getCachedUserAudio(userId, series, chapter, customVoiceId);
+  if (cached) return { ...cached, cacheHit: true };
+
+  const body = loadChapter(series, chapter);
+  if (!body) throw new Error(`preset chapter not found: ${series}/${chapter}`);
+
+  const { audio, durationMs } = await synthesizeChapter(body.body, { providerVoiceId });
+  const key = userAudioCacheKey(userId, series, chapter, customVoiceId);
+  await uploadAudio(key, audio, "audio/mpeg");
+
+  const idx = loadIndex();
+  idx.records[`user:${userId}:${series}:${chapter}:${customVoiceId}`] = {
     key,
     durationMs,
     createdAt: new Date().toISOString(),

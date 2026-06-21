@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { loadVoice, DEFAULT_VOICE } from "@/lib/voice-pref";
+import { loadVoice, loadVoiceLabel, DEFAULT_VOICE } from "@/lib/voice-pref";
 import { useSleepInference } from "@/lib/sleep-inference";
 import { recordPresetView } from "@/lib/preset-history";
 import { WakeRampControl, useWakeRamp } from "@/lib/wake-ramp";
@@ -49,11 +49,14 @@ export default function PresetChapterPage(
   const [error, setError] = useState<string | null>(null);
   const [size, setSize] = useState<number>(18);
   const [voiceId, setVoiceId] = useState<string>(DEFAULT_VOICE);
+  const [voiceLabel, setVoiceLabel] = useState<string | null>(null);
   const [synth, setSynth] = useState<"idle" | "loading" | "error">("idle");
   const [synthError, setSynthError] = useState<string | null>(null);
 
   useEffect(() => {
-    setVoiceId(loadVoice());
+    const saved = loadVoice();
+    setVoiceId(saved);
+    setVoiceLabel(loadVoiceLabel(saved));
   }, []);
 
   useEffect(() => {
@@ -157,7 +160,7 @@ export default function PresetChapterPage(
         synth={synth}
         synthError={synthError}
         onSynth={startSynth}
-        voiceLabel={VOICE_LABEL[voiceId] ?? voiceId}
+        voiceLabel={VOICE_LABEL[voiceId] ?? voiceLabel ?? voiceId}
         onAudioEnded={() => {
           if (!isLast) goToChapter(chapter + 1);
         }}
@@ -273,6 +276,9 @@ function PresetPlayer({
                 : "音频还没准备 · 第一次会合成 30–60 秒，之后所有人都能复用"}
             </span>
             {synthError ? <span className="text-caption" style={{ color: "var(--color-error)" }}>{synthError}</span> : null}
+            <Link href="/voices#custom-voice" className="text-caption font-medium mt-1 self-start" style={{ color: "var(--color-accent-grape)" }}>
+              更换或录制自己的声音 →
+            </Link>
           </div>
           <button
             type="button"
@@ -315,6 +321,9 @@ function PresetPlayer({
               {duration > 0 ? `${fmtTime(current)} / ${fmtTime(duration)}` : "准备播放…"}
               {wakeRamp.active ? ` · ${wakeRamp.label}` : ""}
             </span>
+            <Link href="/voices#custom-voice" className="text-caption font-medium mt-1 self-start" style={{ color: "var(--color-accent-grape)" }}>
+              更换或录制 →
+            </Link>
           </div>
         </div>
         <input

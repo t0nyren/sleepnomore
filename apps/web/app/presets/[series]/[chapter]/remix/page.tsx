@@ -4,7 +4,7 @@ import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SourceSwitch } from "../../../../_components/SourceSwitch";
-import { loadVoice, DEFAULT_VOICE } from "@/lib/voice-pref";
+import { loadVoice, loadVoiceLabel, DEFAULT_VOICE } from "@/lib/voice-pref";
 
 type ChapterMeta = {
   series: string;
@@ -48,11 +48,14 @@ export default function RemixPage(
   const [style, setStyle] = useState("温柔抒情");
   const [duration, setDuration] = useState(15);
   const [voiceId, setVoiceId] = useState<string>(DEFAULT_VOICE);
+  const [voiceLabel, setVoiceLabel] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setVoiceId(loadVoice());
+    const saved = loadVoice();
+    setVoiceId(saved);
+    setVoiceLabel(loadVoiceLabel(saved));
   }, []);
 
   useEffect(() => {
@@ -233,7 +236,7 @@ export default function RemixPage(
           {submitting ? "准备中…" : "为今夜改编"}
         </button>
         <p className="text-caption muted">
-          {!hasMap && !hasDirection ? "至少填一组人物替换 或 一句情节方向" : `${style} · ${VOICE_LABEL[voiceId] ?? voiceId} · 约 ${duration} 分钟`}
+          {!hasMap && !hasDirection ? "至少填一组人物替换 或 一句情节方向" : `${style} · ${VOICE_LABEL[voiceId] ?? voiceLabel ?? voiceId} · 约 ${duration} 分钟`}
         </p>
       </div>
       {error ? <p className="text-caption" style={{ color: "var(--color-error)" }}>{error}</p> : null}

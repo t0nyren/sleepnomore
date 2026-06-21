@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { loadChapter, getOrCreateAudio, getCachedAudio } from "@/lib/presets/store";
+import { loadChapter, getOrCreateAudio, getCachedAudio, getCachedUserAudio, getOrCreateUserAudio } from "@/lib/presets/store";
 import { getCurrentUser } from "@/lib/auth/session";
 import { PRESET_VOICES, type VoiceId } from "@/lib/voices/catalog";
+import { findUserVoice } from "@/lib/store/voices";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,6 +46,12 @@ export async function GET(
       const providerVoiceId = PRESET_VOICES[vid as VoiceId].providerVoiceId;
       const cached = getCachedAudio(series, chapter, providerVoiceId);
       if (cached) audio = { url: cached.url, durationMs: cached.durationMs, cacheHit: true };
+    } else {
+      const custom = findUserVoice(user.id, vid);
+      if (custom) {
+        const cached = getCachedUserAudio(user.id, series, chapter, custom.id);
+        if (cached) audio = { url: cached.url, durationMs: cached.durationMs, cacheHit: true };
+      }
     }
   }
   return NextResponse.json({ chapter: body, audio });
@@ -74,12 +81,16 @@ export async function POST(
     return NextResponse.json({ error: "invalid_request", details: parsed.error.flatten() }, { status: 400 });
   }
   const vid = parsed.data.voiceId;
-  if (!(VOICE_KEYS as string[]).includes(vid)) {
+  const isPresetVoice = (VOICE_KEYS as string[]).includes(vid);
+  const customVoice = isPresetVoice ? null : findUserVoice(user.id, vid);
+  if (!isPresetVoice && !customVoice) {
     return NextResponse.json({ error: "invalid_voice" }, { status: 400 });
   }
 
   try {
-    const result = await getOrCreateAudio(series, chapter, vid as VoiceId);
+    const result = isPresetVoice
+      ? await getOrCreateAudio(series, chapter, vid as VoiceId)
+      : await getOrCreateUserAudio(user.id, series, chapter, customVoice!.id, customVoice!.providerVoiceId);
     return NextResponse.json({
       url: result.url,
       durationMs: result.durationMs,
