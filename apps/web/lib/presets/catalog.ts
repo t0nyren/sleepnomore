@@ -34,6 +34,10 @@ const SERIES_META: Record<string, { name: string; description?: string }> = {
   shuihu:         { name: "水浒传",   description: "施耐庵 · 一百零八将聚义梁山的江湖" },
   xiyou:          { name: "西游记",   description: "吴承恩 · 唐三藏师徒西天取经的奇幻路" },
   hongloumeng:    { name: "红楼梦",   description: "曹雪芹 · 大观园里的繁华与苍凉" },
+  tangchuanqi:    { name: "唐传奇",   description: "唐代传奇 · 龙宫幻梦、市井痴情与侠义奇遇" },
+  shiji:          { name: "史记",     description: "司马迁 · 从五帝到汉武的史家人物长河" },
+  jinghuayuan:    { name: "镜花缘",   description: "李汝珍 · 海外奇国与百花才女的梦游长卷" },
+  liaozhai:       { name: "聊斋志异", description: "蒲松龄 · 狐仙花妖、书生幽梦与因果异事" },
   xingshihengyan: { name: "醒世恒言", description: "冯梦龙 · 醒世人间因果的明代白话短篇" },
   jingshitongyan: { name: "警世通言", description: "冯梦龙 · 警世通言里的市井侠义" },
   yushiming:      { name: "喻世明言", description: "冯梦龙 · 喻世明言中的世情奇谭" },
@@ -62,6 +66,12 @@ type Catalog = {
   bySeries: Record<string, PresetChapterMeta[]>;
 };
 
+type SeriesJson = {
+  title?: string;
+  name?: string;
+  description?: string;
+};
+
 let _catalog: Catalog | null = null;
 
 export function getCatalog(): Catalog {
@@ -83,6 +93,7 @@ function loadCatalog(): Catalog {
 
   for (const series of seriesDirs) {
     const dir = join(root, series);
+    const seriesJson = readSeriesJson(dir);
     const files = readdirSync(dir)
       .filter((f) => /^\d{3,}\.json$/.test(f))
       .sort();
@@ -115,8 +126,8 @@ function loadCatalog(): Catalog {
     allChapters.push(...chapters);
     seriesList.push({
       id: series,
-      name: SERIES_META[series]?.name ?? series,
-      description: SERIES_META[series]?.description,
+      name: SERIES_META[series]?.name ?? seriesJson?.title ?? seriesJson?.name ?? series,
+      description: SERIES_META[series]?.description ?? seriesJson?.description,
       chapterCount: chapters.length,
       totalChars,
     });
@@ -134,6 +145,17 @@ function loadCatalog(): Catalog {
   });
 
   return { series: seriesList, chapters: allChapters, bySeries };
+}
+
+function readSeriesJson(dir: string): SeriesJson | null {
+  const path = join(dir, "series.json");
+  if (!existsSync(path)) return null;
+  try {
+    return JSON.parse(readFileSync(path, "utf8")) as SeriesJson;
+  } catch (err) {
+    console.warn(`[presets] skip malformed series.json in ${dir}: ${(err as Error).message}`);
+    return null;
+  }
 }
 
 export function getSeries(seriesId: string): PresetSeries | null {

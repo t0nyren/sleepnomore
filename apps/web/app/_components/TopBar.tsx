@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/session";
-import { UserMenu } from "./UserMenu";
 
 export async function TopBar() {
   const user = await getCurrentUser();
@@ -14,9 +13,7 @@ export async function TopBar() {
         {user ? (
           <>
             <Link href="/" className="pill" data-selected={false}>我的故事</Link>
-            <Link href="/create" className="pill" data-selected={false}>开始创作</Link>
-            <Link href="/presets" className="pill" data-selected={false}>听名著</Link>
-            <UserMenu displayName={user.displayName} />
+            <Link href="/account" className="pill" data-selected={false}>用户中心</Link>
           </>
         ) : (
           <Link href="/login" className="pill" data-selected={false}>登录</Link>
