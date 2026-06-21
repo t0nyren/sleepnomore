@@ -37,6 +37,24 @@ const VOICE_LABEL: Record<string, string> = {
   v_yujie: "御姐声",
 };
 
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+async function fetchWithTimeout(input: string, init: RequestInit = {}, timeoutMs = 20_000): Promise<Response> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: ctrl.signal });
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+function synthErrorText(e: any): string {
+  const msg = e?.message ?? "";
+  if (msg.includes("音频") || msg.includes("额度") || msg.includes("超时")) return msg;
+  return "音频合成失败，请稍后重试。";
+}
+
 export default function PresetChapterPage(
   { params }: { params: Promise<{ series: string; chapter: string }> },
 ) {
@@ -103,21 +121,68 @@ export default function PresetChapterPage(
     setSynth("loading");
     setSynthError(null);
     try {
-      const res = await fetch(`/api/presets/${series}/${chapter}`, {
+      const res = await fetchWithTimeout(`/api/presets/${series}/${chapter}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ voiceId }),
       });
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(body?.message || body?.error || `HTTP ${res.status}`);
+      // Fast path: already cached → server returns the URL directly.
+      if (res.ok && body?.url) {
+        setData((prev) => (prev ? { ...prev, audio: { url: body.url, durationMs: body.durationMs } } : prev));
+        setSynth("idle");
+        return;
       }
-      setData((prev) => (prev ? { ...prev, audio: { url: body.url, durationMs: body.durationMs } } : prev));
-      setSynth("idle");
+      // Cache miss: server kicked synthesis (202). Poll until the audio is ready.
+      if (res.status === 202 || body?.status === "synthesizing") {
+        await pollForAudio();
+        return;
+      }
+      throw new Error(body?.message || body?.error || `HTTP ${res.status}`);
     } catch (e: any) {
       setSynth("error");
-      setSynthError(e.message ?? "音频合成失败");
+      setSynthError(synthErrorText(e));
     }
+  }
+
+  // Poll the GET endpoint (short requests) until the background synth caches
+  // the audio. Avoids holding one 30–90s connection that cross-border NAT drops.
+  async function pollForAudio() {
+    const startedAt = Date.now();
+    const TIMEOUT_MS = 200_000; // ~3.3 min — synth is 30–90s, leave headroom
+    let rekicked = false;
+    while (Date.now() - startedAt < TIMEOUT_MS) {
+      await sleep(3000);
+      let body: any = {};
+      try {
+        const res = await fetchWithTimeout(
+          `/api/presets/${series}/${chapter}?voiceId=${voiceId}`,
+          { cache: "no-store" },
+          15_000,
+        );
+        body = await res.json().catch(() => ({}));
+      } catch {
+        continue; // transient network blip — keep polling
+      }
+      if (body?.audio?.url) {
+        setData((prev) => (prev ? { ...prev, audio: { url: body.audio.url, durationMs: body.audio.durationMs } } : prev));
+        setSynth("idle");
+        return;
+      }
+      if (body?.job?.status === "error") {
+        throw new Error(body.job.message || "音频合成失败，请稍后重试。");
+      }
+      // Job vanished (e.g. server restarted mid-synth) and still no audio → re-kick once.
+      if (!body?.job && !body?.audio && !rekicked) {
+        rekicked = true;
+        void fetchWithTimeout(`/api/presets/${series}/${chapter}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ voiceId }),
+        }).catch(() => {});
+      }
+    }
+    throw new Error("音频合成超时，请重试。");
   }
 
   function goToChapter(next: number) {

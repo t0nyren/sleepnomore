@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { loadChapter, getOrCreateAudio, getCachedAudio, getCachedUserAudio, getOrCreateUserAudio } from "@/lib/presets/store";
+import {
+  loadChapter,
+  getOrCreateAudio,
+  getCachedAudio,
+  getCachedUserAudio,
+  getOrCreateUserAudio,
+  presetJobKey,
+  userJobKey,
+  getAudioJob,
+  startAudioJob,
+} from "@/lib/presets/store";
 import { getCurrentUser } from "@/lib/auth/session";
 import { PRESET_VOICES, type VoiceId } from "@/lib/voices/catalog";
 import { findUserVoice } from "@/lib/store/voices";
@@ -10,6 +20,13 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 90;
 
 const VOICE_KEYS = Object.keys(PRESET_VOICES) as VoiceId[];
+
+function friendlyTtsError(raw?: string): string {
+  if (raw && (raw.includes("usage limit") || raw.includes("2056"))) {
+    return "今日音频额度已用完，明天再试。";
+  }
+  return "音频合成失败，请稍后重试。";
+}
 
 const QuerySchema = z.object({
   voiceId: z.string().optional(),
@@ -40,21 +57,30 @@ export async function GET(
   const url = new URL(req.url);
   const parsed = QuerySchema.safeParse({ voiceId: url.searchParams.get("voiceId") ?? undefined });
   let audio: { url: string; durationMs: number; cacheHit: boolean } | null = null;
+  let job: { status: "running" | "error"; message?: string } | null = null;
   if (parsed.success && parsed.data.voiceId) {
     const vid = parsed.data.voiceId;
     if ((VOICE_KEYS as string[]).includes(vid)) {
       const providerVoiceId = PRESET_VOICES[vid as VoiceId].providerVoiceId;
       const cached = getCachedAudio(series, chapter, providerVoiceId);
       if (cached) audio = { url: cached.url, durationMs: cached.durationMs, cacheHit: true };
+      else {
+        const j = getAudioJob(presetJobKey(series, chapter, providerVoiceId));
+        if (j) job = { status: j.status, message: j.status === "error" ? friendlyTtsError(j.error) : undefined };
+      }
     } else {
       const custom = findUserVoice(user.id, vid);
       if (custom) {
         const cached = getCachedUserAudio(user.id, series, chapter, custom.id);
         if (cached) audio = { url: cached.url, durationMs: cached.durationMs, cacheHit: true };
+        else {
+          const j = getAudioJob(userJobKey(user.id, series, chapter, custom.id));
+          if (j) job = { status: j.status, message: j.status === "error" ? friendlyTtsError(j.error) : undefined };
+        }
       }
     }
   }
-  return NextResponse.json({ chapter: body, audio });
+  return NextResponse.json({ chapter: body, audio, job });
 }
 
 /**
@@ -87,23 +113,25 @@ export async function POST(
     return NextResponse.json({ error: "invalid_voice" }, { status: 400 });
   }
 
-  try {
-    const result = isPresetVoice
-      ? await getOrCreateAudio(series, chapter, vid as VoiceId)
-      : await getOrCreateUserAudio(user.id, series, chapter, customVoice!.id, customVoice!.providerVoiceId);
-    return NextResponse.json({
-      url: result.url,
-      durationMs: result.durationMs,
-      cacheHit: result.cacheHit,
-    });
-  } catch (err: any) {
-    console.error(`[api/presets] synthesize ${series}/${chapter} ${vid} failed:`, err.message);
-    if (err.message?.includes("usage limit") || err.message?.includes("2056")) {
-      return NextResponse.json(
-        { error: "tts_quota", message: "今日音频额度已用完，明天再试。" },
-        { status: 503 },
-      );
-    }
-    return NextResponse.json({ error: "tts_failed", message: "音频合成失败，请稍后重试。" }, { status: 502 });
+  // Fast path: already cached → return immediately.
+  const providerVoiceId = isPresetVoice ? PRESET_VOICES[vid as VoiceId].providerVoiceId : customVoice!.providerVoiceId;
+  const cached = isPresetVoice
+    ? getCachedAudio(series, chapter, providerVoiceId)
+    : getCachedUserAudio(user.id, series, chapter, customVoice!.id);
+  if (cached) {
+    return NextResponse.json({ url: cached.url, durationMs: cached.durationMs, cacheHit: true });
   }
+
+  // Cache miss: kick synthesis in the background and return 202 right away.
+  // Synthesis takes 30–90s; holding the request open that long drops on
+  // cross-border carrier NAT ("Load failed"). The client polls GET instead.
+  const jobKey = isPresetVoice
+    ? presetJobKey(series, chapter, providerVoiceId)
+    : userJobKey(user.id, series, chapter, customVoice!.id);
+  startAudioJob(jobKey, () =>
+    isPresetVoice
+      ? getOrCreateAudio(series, chapter, vid as VoiceId)
+      : getOrCreateUserAudio(user.id, series, chapter, customVoice!.id, customVoice!.providerVoiceId),
+  );
+  return NextResponse.json({ status: "synthesizing" }, { status: 202 });
 }

@@ -58,6 +58,48 @@ function saveIndex(idx: Index): void {
   renameSync(tmp, p);
 }
 
+/**
+ * In-flight synth jobs, keyed by the same string used as the index record key.
+ * Lets the POST route kick synthesis in the background and return immediately,
+ * so the client never holds a 30–90s blocking connection (which cross-border
+ * carrier NAT drops, surfacing as a "Load failed" fetch error). Lost on
+ * restart — the client re-kicks if it polls and finds neither audio nor job.
+ */
+type JobState = { status: "running" | "error"; error?: string; startedAt: number };
+const audioJobs = new Map<string, JobState>();
+
+export function presetJobKey(series: string, chapter: number, providerVoiceId: string): string {
+  return `${series}:${chapter}:${providerVoiceId}`;
+}
+
+export function userJobKey(userId: string, series: string, chapter: number, customVoiceId: string): string {
+  return `user:${userId}:${series}:${chapter}:${customVoiceId}`;
+}
+
+export function getAudioJob(jobKey: string): JobState | null {
+  return audioJobs.get(jobKey) ?? null;
+}
+
+/**
+ * Ensure a background synth job is running for jobKey. Dedupes concurrent
+ * requests; restarts if the previous attempt errored. Returns "running" if a
+ * job was already in flight, else "started".
+ */
+export function startAudioJob(jobKey: string, run: () => Promise<unknown>): "started" | "running" {
+  const existing = audioJobs.get(jobKey);
+  if (existing && existing.status === "running") return "running";
+  audioJobs.set(jobKey, { status: "running", startedAt: Date.now() });
+  run()
+    .then(() => {
+      audioJobs.delete(jobKey);
+    })
+    .catch((err: any) => {
+      console.error(`[presets] synth job ${jobKey} failed:`, err?.message);
+      audioJobs.set(jobKey, { status: "error", error: err?.message ?? "synth failed", startedAt: Date.now() });
+    });
+  return "started";
+}
+
 function audioCacheKey(series: string, chapter: number, providerVoiceId: string): string {
   const ch = String(chapter).padStart(3, "0");
   const safeVoice = providerVoiceId.replace(/[^A-Za-z0-9_-]/g, "_");
