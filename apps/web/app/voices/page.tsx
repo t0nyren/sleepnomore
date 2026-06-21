@@ -300,7 +300,7 @@ export default function VoicesPage() {
         )}
       </section>
 
-      <section className="flex flex-col gap-3.5">
+      <section id="custom-voice" className="scroll-mt-6 flex flex-col gap-3.5">
         <h3 className="text-caption uppercase tracking-[0.14em] font-semibold muted">你的声音</h3>
         {customVoices.length > 0 ? (
           <ul className="grid gap-3 sm:grid-cols-2">

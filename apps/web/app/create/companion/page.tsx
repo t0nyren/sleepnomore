@@ -168,16 +168,16 @@ export default function CreateCompanionPage() {
 
       <section className="flex flex-col gap-3.5">
         <h3 className="text-caption uppercase tracking-[0.14em] font-semibold muted">声音</h3>
-        <Link href="/voices" className="float-card flex items-center gap-4">
+        <Link href="/voices#custom-voice" className="float-card flex items-center gap-4">
           <div className="grid h-14 w-14 place-items-center rounded-full text-white text-sm font-semibold" style={{
             background: VOICE_AVATAR_BG[voiceId] ?? "linear-gradient(135deg, #FF5C7C 0%, #9D6BFF 100%)",
             boxShadow: "0 10px 20px rgba(157,107,255,0.30), inset 0 1px 0 rgba(255,255,255,0.5)",
           }} aria-hidden>{(VOICE_LABEL[voiceId] ?? "声").charAt(0)}</div>
           <div className="flex flex-1 flex-col">
             <span className="display text-h3">{VOICE_LABEL[voiceId] ?? voiceLabel ?? "选择声音"}</span>
-            <span className="text-caption muted">点击更换</span>
+            <span className="text-caption muted">更换或录制自己的声音</span>
           </div>
-          <span className="text-caption font-medium" style={{ color: "var(--color-accent-grape)" }}>更换 →</span>
+          <span className="text-caption font-medium" style={{ color: "var(--color-accent-grape)" }}>录制 →</span>
         </Link>
       </section>
 
