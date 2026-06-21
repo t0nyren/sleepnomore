@@ -50,7 +50,7 @@ const DURATION_OPTIONS: DurationOption[] = [
 
 export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
   const [kind, setKind] = useState<NoiseKind>("rain");
-  const [volume, setVolume] = useState(0.28);
+  const [volume, setVolume] = useState(0.45);
   const [durationMin, setDurationMin] = useState(0);
   const [remainingSec, setRemainingSec] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -64,7 +64,7 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
     const savedKind = window.localStorage.getItem(STORAGE_KIND) as NoiseKind | null;
     if (savedKind && OPTIONS.some((o) => o.id === savedKind)) setKind(savedKind);
     const savedVolume = Number(window.localStorage.getItem(STORAGE_VOLUME));
-    if (Number.isFinite(savedVolume) && savedVolume >= 0 && savedVolume <= 1) setVolume(savedVolume);
+    if (Number.isFinite(savedVolume) && savedVolume >= 0.08 && savedVolume <= 1) setVolume(savedVolume);
     const savedDuration = Number(window.localStorage.getItem(STORAGE_DURATION));
     if (DURATION_OPTIONS.some((option) => option.minutes === savedDuration)) setDurationMin(savedDuration);
   }, []);
@@ -113,8 +113,8 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
     try {
       const graph = createGraph(nextKind, nextVolume);
       graphRef.current = graph;
-      await resumeAudioContext(graph.context);
       graph.start();
+      await resumeAudioContext(graph.context);
       setPlaying(true);
       setStopAt(durationMin);
       setError(null);
@@ -261,7 +261,8 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
 
 function resumeAudioContext(context: AudioContext) {
   if (context.state === "running") return Promise.resolve();
-  return context.resume().then(() => {
+  const resume = context.resume();
+  return resume.then(() => {
     if (context.state !== "running") {
       throw new Error("浏览器没有允许播放，请再点一次播放");
     }
