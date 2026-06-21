@@ -73,10 +73,10 @@ export function BottomNav() {
   return (
     <nav
       aria-label="主导航"
-      className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pointer-events-none"
-      style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)" }}
+      className="glass-strong fixed inset-x-0 bottom-0 z-50 rounded-t-[1.5rem] border-t border-white/10"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      <div className="glass-strong pointer-events-auto flex w-full max-w-[480px] items-stretch justify-around gap-1 rounded-[1.75rem] px-2 py-1.5">
+      <div className="mx-auto flex w-full max-w-[520px] items-stretch justify-around gap-1 px-2 pt-1.5 pb-1.5">
         {TABS.map((tab) => {
           const active = tab.match(pathname);
           return (
