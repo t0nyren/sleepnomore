@@ -14,7 +14,17 @@ type NoiseOption = {
 type SoundGraph = {
   context: AudioContext;
   master: GainNode;
+  start: () => void;
   cleanup: () => void;
+};
+
+type AudioContextWindow = Window & {
+  webkitAudioContext?: typeof AudioContext;
+};
+
+type DurationOption = {
+  minutes: number;
+  label: string;
 };
 
 const OPTIONS: NoiseOption[] = [
@@ -28,13 +38,25 @@ const OPTIONS: NoiseOption[] = [
 
 const STORAGE_KIND = "mianan:white-noise-kind";
 const STORAGE_VOLUME = "mianan:white-noise-volume";
+const STORAGE_DURATION = "mianan:white-noise-duration";
+
+const DURATION_OPTIONS: DurationOption[] = [
+  { minutes: 0, label: "不限时" },
+  { minutes: 15, label: "15 分钟" },
+  { minutes: 30, label: "30 分钟" },
+  { minutes: 60, label: "60 分钟" },
+  { minutes: 90, label: "90 分钟" },
+];
 
 export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
   const [kind, setKind] = useState<NoiseKind>("rain");
   const [volume, setVolume] = useState(0.28);
+  const [durationMin, setDurationMin] = useState(0);
+  const [remainingSec, setRemainingSec] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const graphRef = useRef<SoundGraph | null>(null);
+  const stopAtRef = useRef<number | null>(null);
 
   const active = OPTIONS.find((o) => o.id === kind) ?? OPTIONS[0];
 
@@ -43,6 +65,8 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
     if (savedKind && OPTIONS.some((o) => o.id === savedKind)) setKind(savedKind);
     const savedVolume = Number(window.localStorage.getItem(STORAGE_VOLUME));
     if (Number.isFinite(savedVolume) && savedVolume >= 0 && savedVolume <= 1) setVolume(savedVolume);
+    const savedDuration = Number(window.localStorage.getItem(STORAGE_DURATION));
+    if (DURATION_OPTIONS.some((option) => option.minutes === savedDuration)) setDurationMin(savedDuration);
   }, []);
 
   useEffect(() => {
@@ -53,6 +77,27 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
     window.localStorage.setItem(STORAGE_VOLUME, String(volume));
     if (graphRef.current) graphRef.current.master.gain.value = volume;
   }, [volume]);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_DURATION, String(durationMin));
+    if (!playing) return;
+    setStopAt(durationMin);
+  }, [durationMin, playing]);
+
+  useEffect(() => {
+    if (!playing || stopAtRef.current === null) return;
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((stopAtRef.current! - Date.now()) / 1000));
+      setRemainingSec(remaining);
+      if (remaining <= 0) {
+        stopPlayback();
+      }
+    };
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playing, durationMin]);
 
   useEffect(() => {
     if (!playing) return;
@@ -68,11 +113,16 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
     try {
       const graph = createGraph(nextKind, nextVolume);
       graphRef.current = graph;
-      await graph.context.resume();
+      await resumeAudioContext(graph.context);
+      graph.start();
       setPlaying(true);
+      setStopAt(durationMin);
       setError(null);
     } catch (err: any) {
+      stop();
       setPlaying(false);
+      setRemainingSec(null);
+      stopAtRef.current = null;
       setError(err?.message ?? "浏览器暂时不能播放白噪音");
     }
   }
@@ -85,10 +135,27 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
     void graph.context.close();
   }
 
+  function stopPlayback() {
+    stop();
+    stopAtRef.current = null;
+    setRemainingSec(null);
+    setPlaying(false);
+  }
+
+  function setStopAt(minutes: number) {
+    if (minutes <= 0) {
+      stopAtRef.current = null;
+      setRemainingSec(null);
+      return;
+    }
+    const seconds = minutes * 60;
+    stopAtRef.current = Date.now() + seconds * 1000;
+    setRemainingSec(seconds);
+  }
+
   function toggle() {
     if (playing) {
-      stop();
-      setPlaying(false);
+      stopPlayback();
       return;
     }
     void restart(kind, volume);
@@ -107,7 +174,9 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
           </div>
           <div className="flex min-w-0 flex-col">
             <h2 className="display text-h3 leading-tight">白噪音</h2>
-            <p className="text-caption muted truncate">{active.name} · {playing ? "播放中" : "未播放"}</p>
+            <p className="text-caption muted truncate">
+              {active.name} · {playing ? (remainingSec !== null ? `剩余 ${fmtRemaining(remainingSec)}` : "播放中") : "未播放"}
+            </p>
           </div>
         </div>
         <button
@@ -151,6 +220,23 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
 
       <p className="text-caption muted">{active.detail}</p>
 
+      <div className="flex flex-col gap-2">
+        <span className="text-caption font-semibold muted">播放时长</span>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+          {DURATION_OPTIONS.map((option) => (
+            <button
+              key={option.minutes}
+              type="button"
+              onClick={() => setDurationMin(option.minutes)}
+              className="pill justify-center"
+              data-selected={durationMin === option.minutes}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <label className="flex items-center gap-3">
         <span className="text-caption font-semibold muted">音量</span>
         <input
@@ -173,12 +259,26 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
   );
 }
 
+function resumeAudioContext(context: AudioContext) {
+  if (context.state === "running") return Promise.resolve();
+  return context.resume().then(() => {
+    if (context.state !== "running") {
+      throw new Error("浏览器没有允许播放，请再点一次播放");
+    }
+  });
+}
+
 function createGraph(kind: NoiseKind, volume: number): SoundGraph {
-  const context = new AudioContext();
+  const AudioContextCtor = window.AudioContext ?? (window as AudioContextWindow).webkitAudioContext;
+  if (!AudioContextCtor) {
+    throw new Error("当前浏览器不支持白噪音播放");
+  }
+  const context = new AudioContextCtor();
   const master = context.createGain();
   master.gain.value = volume;
   master.connect(context.destination);
   const cleanups: Array<() => void> = [];
+  const starters: Array<() => void> = [];
 
   if (kind === "rain") {
     const source = createNoiseSource(context, "white");
@@ -189,8 +289,8 @@ function createGraph(kind: NoiseKind, volume: number): SoundGraph {
     low.type = "lowpass";
     low.frequency.value = 3600;
     source.connect(high).connect(low).connect(master);
-    source.start();
-    cleanups.push(() => source.stop());
+    starters.push(() => source.start());
+    cleanups.push(() => safeStop(source));
   } else if (kind === "ocean") {
     const source = createNoiseSource(context, "pink");
     const low = context.createBiquadFilter();
@@ -204,11 +304,13 @@ function createGraph(kind: NoiseKind, volume: number): SoundGraph {
     depth.gain.value = 0.26;
     lfo.connect(depth).connect(swell.gain);
     source.connect(low).connect(swell).connect(master);
-    source.start();
-    lfo.start();
+    starters.push(() => {
+      source.start();
+      lfo.start();
+    });
     cleanups.push(() => {
-      source.stop();
-      lfo.stop();
+      safeStop(source);
+      safeStop(lfo);
     });
   } else if (kind === "stream") {
     const source = createNoiseSource(context, "white");
@@ -220,8 +322,8 @@ function createGraph(kind: NoiseKind, volume: number): SoundGraph {
     low.type = "lowpass";
     low.frequency.value = 5200;
     source.connect(band).connect(low).connect(master);
-    source.start();
-    cleanups.push(() => source.stop());
+    starters.push(() => source.start());
+    cleanups.push(() => safeStop(source));
   } else if (kind === "fire") {
     const source = createNoiseSource(context, "pink");
     const low = context.createBiquadFilter();
@@ -230,11 +332,14 @@ function createGraph(kind: NoiseKind, volume: number): SoundGraph {
     const base = context.createGain();
     base.gain.value = 0.65;
     source.connect(low).connect(base).connect(master);
-    source.start();
-    const timer = window.setInterval(() => playCrackle(context, master), 180 + Math.random() * 260);
+    let timer: number | null = null;
+    starters.push(() => {
+      source.start();
+      timer = window.setInterval(() => playCrackle(context, master), 180 + Math.random() * 260);
+    });
     cleanups.push(() => {
-      source.stop();
-      window.clearInterval(timer);
+      safeStop(source);
+      if (timer !== null) window.clearInterval(timer);
     });
   } else if (kind === "night") {
     const source = createNoiseSource(context, "pink");
@@ -244,11 +349,14 @@ function createGraph(kind: NoiseKind, volume: number): SoundGraph {
     const base = context.createGain();
     base.gain.value = 0.24;
     source.connect(low).connect(base).connect(master);
-    source.start();
-    const timer = window.setInterval(() => playChirp(context, master), 900 + Math.random() * 1300);
+    let timer: number | null = null;
+    starters.push(() => {
+      source.start();
+      timer = window.setInterval(() => playChirp(context, master), 900 + Math.random() * 1300);
+    });
     cleanups.push(() => {
-      source.stop();
-      window.clearInterval(timer);
+      safeStop(source);
+      if (timer !== null) window.clearInterval(timer);
     });
   } else {
     const source = createNoiseSource(context, "pink");
@@ -262,19 +370,30 @@ function createGraph(kind: NoiseKind, volume: number): SoundGraph {
     humGain.gain.value = 0.045;
     source.connect(low).connect(master);
     hum.connect(humGain).connect(master);
-    source.start();
-    hum.start();
+    starters.push(() => {
+      source.start();
+      hum.start();
+    });
     cleanups.push(() => {
-      source.stop();
-      hum.stop();
+      safeStop(source);
+      safeStop(hum);
     });
   }
 
   return {
     context,
     master,
+    start: () => starters.splice(0).forEach((fn) => fn()),
     cleanup: () => cleanups.splice(0).forEach((fn) => fn()),
   };
+}
+
+function safeStop(node: AudioScheduledSourceNode) {
+  try {
+    node.stop();
+  } catch {
+    // Some browsers throw if a source is stopped before it has started.
+  }
 }
 
 function createNoiseSource(context: AudioContext, tone: "white" | "pink") {
@@ -344,4 +463,10 @@ function PauseGlyph() {
       <rect x="13" y="3" width="5" height="18" rx="1.4" />
     </svg>
   );
+}
+
+function fmtRemaining(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  return `${minutes}:${String(sec).padStart(2, "0")}`;
 }
