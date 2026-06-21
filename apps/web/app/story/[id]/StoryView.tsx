@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { WhiteNoisePlayer } from "@/app/_components/WhiteNoisePlayer";
 import { useSleepInference } from "@/lib/sleep-inference";
 import { WakeRampControl, useWakeRamp } from "@/lib/wake-ramp";
 import type { WakeRampState } from "@/lib/wake-ramp";
@@ -206,6 +207,8 @@ export function StoryView({ storyId }: { storyId: string }) {
         onEnded={() => { void autoAdvanceFrom(safeActive); }}
         onAutoPlayHandled={() => setAutoPlayRequest(null)}
       />
+
+      <WhiteNoisePlayer compact />
 
       {sleepPausedAt !== null ? (
         <div className="float-card flex items-center justify-between gap-3 flex-wrap" style={{ borderColor: "rgba(157,107,255,0.4)" }}>

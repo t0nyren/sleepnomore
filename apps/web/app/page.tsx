@@ -45,6 +45,7 @@ export default async function TonightPage() {
             <>
               <Link href="/create" className="cta-primary">为今夜准备一篇</Link>
               <Link href="/presets" className="cta-ghost">听经典名著</Link>
+              <Link href="/noise" className="cta-ghost">白噪音</Link>
               <Link href="/create/free" className="cta-ghost">自由描述</Link>
               <DownloadAppLink />
             </>
@@ -60,6 +61,36 @@ export default async function TonightPage() {
 
       {user ? <ContinueReading /> : null}
       {user ? <RecentStories /> : null}
+
+      {user ? (
+        <section className="flex flex-col gap-5">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="display text-h2">只想听点环境声</h2>
+            <Link href="/noise" className="text-caption font-medium" style={{ color: "var(--color-accent-grape)" }}>
+              打开白噪音 →
+            </Link>
+          </div>
+          <Link href="/noise" className="float-card flex items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-4">
+              <div
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-white"
+                style={{
+                  background: "linear-gradient(135deg,#00D1B2,#4FB6FF)",
+                  boxShadow: "0 10px 20px rgba(79,182,255,0.25), inset 0 1px 0 rgba(255,255,255,0.5)",
+                }}
+                aria-hidden
+              >
+                〜
+              </div>
+              <div className="flex min-w-0 flex-col gap-1">
+                <span className="display text-h3 leading-tight">雨声、海浪、溪流、篝火</span>
+                <span className="text-caption muted">可以单独播放，也可以在故事页和人声一起低音量播放。</span>
+              </div>
+            </div>
+            <span className="text-caption font-semibold" style={{ color: "var(--color-accent-grape)" }}>进入</span>
+          </Link>
+        </section>
+      ) : null}
 
       {user ? (
         <section className="flex flex-col gap-5">
