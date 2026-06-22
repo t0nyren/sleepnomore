@@ -9,4 +9,4 @@ All files in this folder are derived from BigSoundBank / LaSonotheque sound page
 | `stream.mp3` | 溪流 | https://bigsoundbank.com/small-stream-4-s1354.html | https://bigsoundbank.com/UPLOAD/mp3/1354.mp3 |
 | `fire.mp3` | 篝火 | https://bigsoundbank.com/big-branching-fire-2-s0988.html | https://bigsoundbank.com/UPLOAD/mp3/0988.mp3 |
 | `night.mp3` | 夜虫 | https://bigsoundbank.com/campaign-at-night-4-s1880.html | https://bigsoundbank.com/UPLOAD/mp3/1880.mp3 |
-| `fan.mp3` | 风扇 | https://bigsoundbank.com/electric-fan-2-s0079.html | https://bigsoundbank.com/UPLOAD/mp3/0079.mp3 |
+| `fan.mp3` | 风扇 | https://bigsoundbank.com/air-water-heat-pump-back-s1233.html | https://bigsoundbank.com/UPLOAD/mp3/1233.mp3 |

@@ -56,7 +56,7 @@ const OPTIONS: NoiseOption[] = [
   {
     id: "fan",
     name: "风扇",
-    detail: "真实电风扇低速运转声，稳定不抢人声。",
+    detail: "真实热泵风扇背面录音，低频稳定，源素材标注适合循环。",
     gradient: "linear-gradient(135deg,#C8B6FF,#00D1B2)",
     src: "/audio/noise/fan.mp3",
   },
