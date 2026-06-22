@@ -8,8 +8,17 @@ import { DownloadAppLink } from "../_components/DownloadAppLink";
 
 const QUICK_LINKS = [
   { href: "/voices", title: "我的声音", detail: "选择配音或录制自己的声音", gradient: "linear-gradient(135deg,#FF5C7C,#9D6BFF)" },
-  { href: "/noise", title: "白噪音", detail: "雨声、海浪、溪流、篝火", gradient: "linear-gradient(135deg,#00D1B2,#4FB6FF)" },
 ];
+
+function storyStatusLabel(status: string): string {
+  if (status === "ready") return "已就绪";
+  if (status === "failed") return "失败";
+  return "准备中…";
+}
+
+function fmtDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("zh-CN", { month: "long", day: "numeric" });
+}
 
 export const dynamic = "force-dynamic";
 
@@ -47,8 +56,35 @@ export default async function AccountPage() {
       </section>
 
       <section className="flex flex-col gap-3.5">
-        <h3 className="text-caption uppercase tracking-[0.14em] font-semibold muted">快捷入口</h3>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-caption uppercase tracking-[0.14em] font-semibold muted">我的故事</h3>
+          <Link href="/create" className="text-caption font-medium" style={{ color: "var(--color-accent-grape)" }}>去创作 →</Link>
+        </div>
+        {stories.length === 0 ? (
+          <div className="float-card flex flex-col gap-1 text-body">
+            <span>还没有生成的故事。</span>
+            <span className="text-caption muted">在「创作」里写一篇属于今晚的睡前故事。</span>
+          </div>
+        ) : (
+          <ul className="flex flex-col gap-2.5">
+            {stories.map((s) => (
+              <li key={s.id}>
+                <Link href={`/story/${s.id}`} className="float-card flex items-center gap-3.5">
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="display text-h3 leading-tight truncate">{s.title ?? "未命名故事"}</span>
+                    <span className="text-caption muted">{storyStatusLabel(s.status)} · {fmtDate(s.createdAt)}</span>
+                  </span>
+                  <span aria-hidden className="text-caption muted">›</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="flex flex-col gap-3.5">
+        <h3 className="text-caption uppercase tracking-[0.14em] font-semibold muted">我的声音</h3>
+        <div className="grid gap-3">
           {QUICK_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="float-card flex items-center gap-3.5">
               <span
