@@ -9,17 +9,7 @@ type NoiseOption = {
   name: string;
   detail: string;
   gradient: string;
-};
-
-type SoundGraph = {
-  context: AudioContext;
-  master: GainNode;
-  start: () => void;
-  cleanup: () => void;
-};
-
-type AudioContextWindow = Window & {
-  webkitAudioContext?: typeof AudioContext;
+  src: string;
 };
 
 type DurationOption = {
@@ -28,12 +18,48 @@ type DurationOption = {
 };
 
 const OPTIONS: NoiseOption[] = [
-  { id: "rain", name: "雨声", detail: "柔和雨幕，适合跟故事一起低音量播放。", gradient: "linear-gradient(135deg,#4FB6FF,#9D6BFF)" },
-  { id: "ocean", name: "海浪", detail: "缓慢起伏的潮声，节奏更松。", gradient: "linear-gradient(135deg,#00D1B2,#4FB6FF)" },
-  { id: "stream", name: "溪流", detail: "细碎流动声，适合专注或浅睡。", gradient: "linear-gradient(135deg,#9DF3D7,#4FB6FF)" },
-  { id: "fire", name: "篝火", detail: "低暖底噪加轻微噼啪声。", gradient: "linear-gradient(135deg,#FF9555,#FFD24D)" },
-  { id: "night", name: "夜虫", detail: "安静夜色里的轻微虫鸣。", gradient: "linear-gradient(135deg,#9D6BFF,#FF9EC4)" },
-  { id: "fan", name: "风扇", detail: "稳定低频风声，不抢故事人声。", gradient: "linear-gradient(135deg,#C8B6FF,#00D1B2)" },
+  {
+    id: "rain",
+    name: "雨声",
+    detail: "真实夏雨落在露台上的录音，颗粒更清楚。",
+    gradient: "linear-gradient(135deg,#4FB6FF,#9D6BFF)",
+    src: "/audio/noise/rain.mp3",
+  },
+  {
+    id: "ocean",
+    name: "海浪",
+    detail: "真实海浪和浪花回涌，节奏更松。",
+    gradient: "linear-gradient(135deg,#00D1B2,#4FB6FF)",
+    src: "/audio/noise/ocean.mp3",
+  },
+  {
+    id: "stream",
+    name: "溪流",
+    detail: "小山溪流动声，水花更细碎。",
+    gradient: "linear-gradient(135deg,#9DF3D7,#4FB6FF)",
+    src: "/audio/noise/stream.mp3",
+  },
+  {
+    id: "fire",
+    name: "篝火",
+    detail: "真实木枝燃烧和轻微噼啪声。",
+    gradient: "linear-gradient(135deg,#FF9555,#FFD24D)",
+    src: "/audio/noise/fire.mp3",
+  },
+  {
+    id: "night",
+    name: "夜虫",
+    detail: "夜晚草地里的虫鸣和远处自然底声。",
+    gradient: "linear-gradient(135deg,#9D6BFF,#FF9EC4)",
+    src: "/audio/noise/night.mp3",
+  },
+  {
+    id: "fan",
+    name: "风扇",
+    detail: "真实电风扇低速运转声，稳定不抢人声。",
+    gradient: "linear-gradient(135deg,#C8B6FF,#00D1B2)",
+    src: "/audio/noise/fan.mp3",
+  },
 ];
 
 const STORAGE_KIND = "mianan:white-noise-kind";
@@ -55,7 +81,7 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
   const [remainingSec, setRemainingSec] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const graphRef = useRef<SoundGraph | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const stopAtRef = useRef<number | null>(null);
 
   const active = OPTIONS.find((o) => o.id === kind) ?? OPTIONS[0];
@@ -75,7 +101,7 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_VOLUME, String(volume));
-    if (graphRef.current) graphRef.current.master.gain.value = volume;
+    if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
 
   useEffect(() => {
@@ -100,46 +126,47 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
   }, [playing, durationMin]);
 
   useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = volume;
+    audio.load();
     if (!playing) return;
-    void restart(kind, volume);
-    return stop;
+    void playAudio();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind]);
 
-  useEffect(() => stop, []);
+  useEffect(() => stopAudio, []);
 
-  async function restart(nextKind: NoiseKind, nextVolume: number) {
-    stop();
+  async function playAudio() {
+    const audio = audioRef.current;
+    if (!audio) return;
     try {
-      const graph = createGraph(nextKind, nextVolume);
-      graphRef.current = graph;
-      graph.start();
-      await resumeAudioContext(graph.context);
+      audio.volume = volume;
+      await audio.play();
       setPlaying(true);
       setStopAt(durationMin);
       setError(null);
     } catch (err: any) {
-      stop();
       setPlaying(false);
       setRemainingSec(null);
       stopAtRef.current = null;
-      setError(err?.message ?? "浏览器暂时不能播放白噪音");
+      setError(err?.message ? `浏览器暂时不能播放：${err.message}` : "浏览器暂时不能播放白噪音，请再点一次播放");
     }
   }
 
-  function stop() {
-    const graph = graphRef.current;
-    graphRef.current = null;
-    if (!graph) return;
-    graph.cleanup();
-    void graph.context.close();
-  }
-
   function stopPlayback() {
-    stop();
+    stopAudio();
     stopAtRef.current = null;
     setRemainingSec(null);
     setPlaying(false);
+  }
+
+  function stopAudio() {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
   }
 
   function setStopAt(minutes: number) {
@@ -158,11 +185,23 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
       stopPlayback();
       return;
     }
-    void restart(kind, volume);
+    void playAudio();
   }
 
   return (
     <section className={`float-card flex flex-col ${compact ? "gap-4" : "gap-5"}`}>
+      <audio
+        ref={audioRef}
+        src={active.src}
+        loop
+        preload="metadata"
+        onEnded={() => setPlaying(false)}
+        onError={() => {
+          setPlaying(false);
+          setError("白噪音音频加载失败，请稍后重试");
+        }}
+      />
+
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div
@@ -257,186 +296,6 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
       {error ? <p className="text-caption" style={{ color: "var(--color-error, #A85252)" }}>{error}</p> : null}
     </section>
   );
-}
-
-function resumeAudioContext(context: AudioContext) {
-  if (context.state === "running") return Promise.resolve();
-  const resume = context.resume();
-  return resume.then(() => {
-    if (context.state !== "running") {
-      throw new Error("浏览器没有允许播放，请再点一次播放");
-    }
-  });
-}
-
-function createGraph(kind: NoiseKind, volume: number): SoundGraph {
-  const AudioContextCtor = window.AudioContext ?? (window as AudioContextWindow).webkitAudioContext;
-  if (!AudioContextCtor) {
-    throw new Error("当前浏览器不支持白噪音播放");
-  }
-  const context = new AudioContextCtor();
-  const master = context.createGain();
-  master.gain.value = volume;
-  master.connect(context.destination);
-  const cleanups: Array<() => void> = [];
-  const starters: Array<() => void> = [];
-
-  if (kind === "rain") {
-    const source = createNoiseSource(context, "white");
-    const high = context.createBiquadFilter();
-    high.type = "highpass";
-    high.frequency.value = 650;
-    const low = context.createBiquadFilter();
-    low.type = "lowpass";
-    low.frequency.value = 3600;
-    source.connect(high).connect(low).connect(master);
-    starters.push(() => source.start());
-    cleanups.push(() => safeStop(source));
-  } else if (kind === "ocean") {
-    const source = createNoiseSource(context, "pink");
-    const low = context.createBiquadFilter();
-    low.type = "lowpass";
-    low.frequency.value = 900;
-    const swell = context.createGain();
-    swell.gain.value = 0.38;
-    const lfo = context.createOscillator();
-    const depth = context.createGain();
-    lfo.frequency.value = 0.075;
-    depth.gain.value = 0.26;
-    lfo.connect(depth).connect(swell.gain);
-    source.connect(low).connect(swell).connect(master);
-    starters.push(() => {
-      source.start();
-      lfo.start();
-    });
-    cleanups.push(() => {
-      safeStop(source);
-      safeStop(lfo);
-    });
-  } else if (kind === "stream") {
-    const source = createNoiseSource(context, "white");
-    const band = context.createBiquadFilter();
-    band.type = "bandpass";
-    band.frequency.value = 1750;
-    band.Q.value = 0.85;
-    const low = context.createBiquadFilter();
-    low.type = "lowpass";
-    low.frequency.value = 5200;
-    source.connect(band).connect(low).connect(master);
-    starters.push(() => source.start());
-    cleanups.push(() => safeStop(source));
-  } else if (kind === "fire") {
-    const source = createNoiseSource(context, "pink");
-    const low = context.createBiquadFilter();
-    low.type = "lowpass";
-    low.frequency.value = 780;
-    const base = context.createGain();
-    base.gain.value = 0.65;
-    source.connect(low).connect(base).connect(master);
-    let timer: number | null = null;
-    starters.push(() => {
-      source.start();
-      timer = window.setInterval(() => playCrackle(context, master), 180 + Math.random() * 260);
-    });
-    cleanups.push(() => {
-      safeStop(source);
-      if (timer !== null) window.clearInterval(timer);
-    });
-  } else if (kind === "night") {
-    const source = createNoiseSource(context, "pink");
-    const low = context.createBiquadFilter();
-    low.type = "lowpass";
-    low.frequency.value = 520;
-    const base = context.createGain();
-    base.gain.value = 0.24;
-    source.connect(low).connect(base).connect(master);
-    let timer: number | null = null;
-    starters.push(() => {
-      source.start();
-      timer = window.setInterval(() => playChirp(context, master), 900 + Math.random() * 1300);
-    });
-    cleanups.push(() => {
-      safeStop(source);
-      if (timer !== null) window.clearInterval(timer);
-    });
-  } else {
-    const source = createNoiseSource(context, "pink");
-    const low = context.createBiquadFilter();
-    low.type = "lowpass";
-    low.frequency.value = 1050;
-    const hum = context.createOscillator();
-    const humGain = context.createGain();
-    hum.type = "sine";
-    hum.frequency.value = 88;
-    humGain.gain.value = 0.045;
-    source.connect(low).connect(master);
-    hum.connect(humGain).connect(master);
-    starters.push(() => {
-      source.start();
-      hum.start();
-    });
-    cleanups.push(() => {
-      safeStop(source);
-      safeStop(hum);
-    });
-  }
-
-  return {
-    context,
-    master,
-    start: () => starters.splice(0).forEach((fn) => fn()),
-    cleanup: () => cleanups.splice(0).forEach((fn) => fn()),
-  };
-}
-
-function safeStop(node: AudioScheduledSourceNode) {
-  try {
-    node.stop();
-  } catch {
-    // Some browsers throw if a source is stopped before it has started.
-  }
-}
-
-function createNoiseSource(context: AudioContext, tone: "white" | "pink") {
-  const seconds = 3;
-  const buffer = context.createBuffer(1, context.sampleRate * seconds, context.sampleRate);
-  const data = buffer.getChannelData(0);
-  let last = 0;
-  for (let i = 0; i < data.length; i += 1) {
-    const white = Math.random() * 2 - 1;
-    last = tone === "pink" ? last * 0.92 + white * 0.08 : white;
-    data[i] = tone === "pink" ? last * 2.2 : white * 0.45;
-  }
-  const source = context.createBufferSource();
-  source.buffer = buffer;
-  source.loop = true;
-  return source;
-}
-
-function playCrackle(context: AudioContext, target: AudioNode) {
-  const source = createNoiseSource(context, "white");
-  const gain = context.createGain();
-  const now = context.currentTime;
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.18 + Math.random() * 0.16, now + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055 + Math.random() * 0.05);
-  source.connect(gain).connect(target);
-  source.start(now);
-  source.stop(now + 0.15);
-}
-
-function playChirp(context: AudioContext, target: AudioNode) {
-  const osc = context.createOscillator();
-  const gain = context.createGain();
-  const now = context.currentTime;
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(3200 + Math.random() * 900, now);
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.035 + Math.random() * 0.025, now + 0.025);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24 + Math.random() * 0.16);
-  osc.connect(gain).connect(target);
-  osc.start(now);
-  osc.stop(now + 0.5);
 }
 
 function WaveGlyph() {

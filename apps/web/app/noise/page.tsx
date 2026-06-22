@@ -10,7 +10,7 @@ export default function NoisePage() {
         </span>
         <h1 className="display text-h1 max-w-[24ch]">选一段今晚的环境声。</h1>
         <p className="muted max-w-[42ch]">
-          雨声、海浪、溪流、篝火、夜虫和风扇都在本机实时生成循环播放，不需要等待音频文件加载。
+          雨声、海浪、溪流、篝火、夜虫和风扇都换成真实环境录音，循环播放时可以叠在故事声音下面。
         </p>
       </header>
 
