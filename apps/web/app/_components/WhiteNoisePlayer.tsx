@@ -82,6 +82,7 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playRequestRef = useRef(0);
   const stopAtRef = useRef<number | null>(null);
 
   const active = OPTIONS.find((o) => o.id === kind) ?? OPTIONS[0];
@@ -129,7 +130,6 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
     const audio = audioRef.current;
     if (!audio) return;
     audio.volume = volume;
-    audio.load();
     if (!playing) return;
     void playAudio();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,13 +140,17 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
   async function playAudio() {
     const audio = audioRef.current;
     if (!audio) return;
+    const requestId = playRequestRef.current + 1;
+    playRequestRef.current = requestId;
     try {
       audio.volume = volume;
       await audio.play();
+      if (requestId !== playRequestRef.current) return;
       setPlaying(true);
       setStopAt(durationMin);
       setError(null);
     } catch (err: any) {
+      if (requestId !== playRequestRef.current) return;
       setPlaying(false);
       setRemainingSec(null);
       stopAtRef.current = null;
@@ -155,6 +159,7 @@ export function WhiteNoisePlayer({ compact = false }: { compact?: boolean }) {
   }
 
   function stopPlayback() {
+    playRequestRef.current += 1;
     stopAudio();
     stopAtRef.current = null;
     setRemainingSec(null);
