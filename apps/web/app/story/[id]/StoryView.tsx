@@ -55,8 +55,18 @@ export function StoryView({ storyId }: { storyId: string }) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: StoryDTO = await res.json();
         setStory(data);
-        if (data.status === "ready" || data.status === "failed") return;
-        timer = window.setTimeout(tick, 2500);
+        // Keep polling until the story is terminally done AND every chapter's
+        // audio is ready. A chapter can be `audio_failed` while the story is
+        // already `ready` (text finished, that chapter's TTS timed out). When the
+        // user taps 重试合成 the chapter goes back to `text_only`; the poll must
+        // still be alive to pick up the new audio — otherwise the retry card is
+        // stuck on 「提交中…」 forever (it relies on a poll to replace it).
+        const allAudioReady = data.chapters.every((c) => c.status === "audio_ready");
+        if (data.status === "failed" || (data.status === "ready" && allAudioReady)) return;
+        // Fast cadence while a chapter is actively synthesizing; slower idle
+        // cadence while a failed chapter sits waiting for a possible retry.
+        const synthesizing = data.chapters.some((c) => c.status === "text_only");
+        timer = window.setTimeout(tick, synthesizing ? 2500 : 5000);
       } catch (e: any) {
         if (!alive) return;
         setError(e.message);
