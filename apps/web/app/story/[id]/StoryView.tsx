@@ -37,6 +37,9 @@ export function StoryView({ storyId }: { storyId: string }) {
   const [active, setActive] = useState(0);
   const [autoPlayRequest, setAutoPlayRequest] = useState<{ idx: number; token: number } | null>(null);
   const [sleepPausedAt, setSleepPausedAt] = useState<number | null>(null);
+  // Bumped after a failed-story retry to restart the polling loop (which stops
+  // once status === "failed"), so regeneration progress is picked up again.
+  const [pollNonce, setPollNonce] = useState(0);
   const sleep = useSleepInference();
   const wakeRamp = useWakeRamp();
 
@@ -78,7 +81,7 @@ export function StoryView({ storyId }: { storyId: string }) {
       alive = false;
       if (timer !== null) window.clearTimeout(timer);
     };
-  }, [storyId]);
+  }, [storyId, pollNonce]);
 
   if (error && !story) {
     return <div className="float-card text-body" style={{ color: "var(--color-error)" }}>{error}</div>;
@@ -90,11 +93,11 @@ export function StoryView({ storyId }: { storyId: string }) {
 
   if (story.status === "failed") {
     return (
-      <div className="float-card flex flex-col gap-3">
-        <h2 className="display text-h2" style={{ color: "var(--color-error)" }}>没能准备好</h2>
-        <p className="muted">{story.progress?.detail ?? "稍后再试一次。"}</p>
-        <Link href="/create" className="cta-ghost self-start">回去重试</Link>
-      </div>
+      <FailedStoryCard
+        storyId={storyId}
+        detail={story.progress?.detail}
+        onRetried={() => setPollNonce((n) => n + 1)}
+      />
     );
   }
 
@@ -566,6 +569,49 @@ function ActiveAudioPlayer({
           onEnded();
         }}
       />
+    </div>
+  );
+}
+
+function FailedStoryCard({ storyId, detail, onRetried }: { storyId: string; detail?: string; onRetried: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function retry() {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/stories/${storyId}/retry`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || data?.error || `HTTP ${res.status}`);
+      // Status is now `queued` server-side; restart the parent poll to follow
+      // regeneration. Keep busy=true — the card unmounts once the poll sees the
+      // new status (status leaves "failed" → this branch no longer renders).
+      onRetried();
+    } catch (err: any) {
+      setError(err?.message ?? "重试失败，请稍后再试");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="float-card flex flex-col gap-3">
+      <h2 className="display text-h2" style={{ color: "var(--color-error)" }}>没能准备好</h2>
+      <p className="muted">{detail ?? "生成时出了点问题。"}</p>
+      {error ? <p className="text-caption" style={{ color: "var(--color-error)" }}>{error}</p> : null}
+      <div className="flex items-center gap-3 flex-wrap">
+        <button
+          type="button"
+          onClick={retry}
+          disabled={busy}
+          className="pill"
+          style={{ background: busy ? undefined : "linear-gradient(135deg, #9D6BFF, #4FB6FF)", color: busy ? undefined : "white", fontWeight: 600 }}
+        >
+          {busy ? "重新生成中…" : "重新生成"}
+        </button>
+        <Link href="/create" className="cta-ghost self-start">回创作页</Link>
+      </div>
     </div>
   );
 }
